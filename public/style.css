@@ -1910,7 +1910,7 @@ input[type="radio"]:checked::before {
   text-decoration: underline;
   color: #007BFF;
   cursor: pointer;
-  display: none;
+  display: block;
 }
 
 .delivery-options a p {
