@@ -82,7 +82,7 @@ function formatPrice(value) {
 
 function checkAuthentication() {
   const token = localStorage.getItem('jwt_77-prueba');
-  const cartButton = document.getElementById('cart-button');
+  // const cartButton = document.getElementById('cart-button');
   // 🔥 Ya no tocamos scrollToBottomButton
 
   if (token) {
@@ -805,40 +805,40 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Evento para abrir el popup del carrito al hacer clic en el botón flotante
-  document.getElementById('cart-button').addEventListener('click', function () {
-    const cart = JSON.parse(localStorage.getItem('cart')) || {};
+  // document.getElementById('cart-button').addEventListener('click', function () {
+  //   const cart = JSON.parse(localStorage.getItem('cart')) || {};
 
-    if (Object.keys(cart).length === 0) {
-      // Si el carrito está vacío, mostrar un popup básico sin overlay
-      const emptyCartPopup = document.createElement('div');
-      emptyCartPopup.classList.add('cart-popup');
-      emptyCartPopup.innerHTML = `
-          <div class="cart-popup-content">
-              <span class="close"><button class="close-cart-btn">X</button></span>
-              <h2>Pedido</h2>
-              <p>Tu carrito está vacío</p>
-              <div class="btn-popup">
-                  <button class="continue-shopping-btn">Seguir Comprando</button>
-              </div>
-          </div>
-      `;
-      document.body.appendChild(emptyCartPopup);
+  //   if (Object.keys(cart).length === 0) {
+  //     // Si el carrito está vacío, mostrar un popup básico sin overlay
+  //     const emptyCartPopup = document.createElement('div');
+  //     emptyCartPopup.classList.add('cart-popup');
+  //     emptyCartPopup.innerHTML = `
+  //         <div class="cart-popup-content">
+  //             <span class="close"><button class="close-cart-btn">X</button></span>
+  //             <h2>Pedido</h2>
+  //             <p>Tu carrito está vacío</p>
+  //             <div class="btn-popup">
+  //                 <button class="continue-shopping-btn">Seguir Comprando</button>
+  //             </div>
+  //         </div>
+  //     `;
+  //     document.body.appendChild(emptyCartPopup);
 
-      // Eventos para cerrar el popup
-      document.querySelector('.close-cart-btn').addEventListener('click', () => {
-        document.body.removeChild(emptyCartPopup);
-      });
-      document.querySelector('.continue-shopping-btn').addEventListener('click', () => {
-        document.body.removeChild(emptyCartPopup);
-      });
+  //     // Eventos para cerrar el popup
+  //     document.querySelector('.close-cart-btn').addEventListener('click', () => {
+  //       document.body.removeChild(emptyCartPopup);
+  //     });
+  //     document.querySelector('.continue-shopping-btn').addEventListener('click', () => {
+  //       document.body.removeChild(emptyCartPopup);
+  //     });
 
-    } else {
-      // Si el carrito tiene productos, llamar a showCartPopup y aplicar overlay
-      overlay.style.display = 'block';
-      document.body.style.overflow = 'hidden';
-      showCartPopup();
-    }
-  });
+  //   } else {
+  //     // Si el carrito tiene productos, llamar a showCartPopup y aplicar overlay
+  //     overlay.style.display = 'block';
+  //     document.body.style.overflow = 'hidden';
+  //     showCartPopup();
+  //   }
+  // });
 
   function confirmOrder(formattedDate) {
     const cart = JSON.parse(localStorage.getItem('cart')) || {};
