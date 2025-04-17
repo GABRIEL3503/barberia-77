@@ -2551,12 +2551,12 @@ font-size: 2.1rem;
       max-width: 400px;
     }
     .popup-title {
-      font-size: 28px;
+      font-size: 34px;
       font-weight: 500;
       margin-bottom: 10px;
     }
     .popup-date {
-      font-size: 14px;
+      font-size: 24px;
       color: #666;
       margin-bottom: 20px;
     }
@@ -2567,7 +2567,7 @@ font-size: 2.1rem;
       margin-bottom: 20px;
     }
     .popup-footer {
-      font-size: 16px;
+      font-size: 24px;
       color: #333;
       margin-bottom: 20px;
     }
