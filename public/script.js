@@ -583,7 +583,7 @@ document.addEventListener("DOMContentLoaded", function () {
         menuSection.setAttribute('data-type', item.tipo);
         menuSection.innerHTML = `
           <h2 class="section-title">
-    <span>∙ ${capitalizeFirstLetter(item.tipo.toLowerCase())} ∙</span>
+    <span>• ${capitalizeFirstLetter(item.tipo.toLowerCase())} •</span>
           </h2>
         `;
 
