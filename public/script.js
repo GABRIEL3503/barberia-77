@@ -200,7 +200,44 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Añadir un evento click al botón "Iniciar Sesión"
   // Añadir un evento click al botón "Iniciar Sesión"
+  document.getElementById('login-button').addEventListener('click', function () {
+    Swal.fire({
+      title: 'Iniciar Sesión',
+      html:
+        '<input id="swal-username" class="swal2-input" placeholder="Usuario">' +
+        '<input id="swal-password" type="password" class="swal2-input" placeholder="Contraseña">',
+      focusConfirm: false,
+      preConfirm: () => {
+        return {
+          username: document.getElementById('swal-username').value,
+          password: document.getElementById('swal-password').value
+        };
+      }
+    }).then((result) => {  // Asegúrate de que este bloque esté dentro de la llamada a Swal.fire
+      if (result.isConfirmed) {
+        // Enviar estas credenciales al servidor
 
+        fetch('https://octopus-app.com.ar/77-prueba/api/auth/login', {
+          // fetch('http://localhost:3001/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(result.value)
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.auth) {
+              localStorage.setItem('jwt_77-prueba', data.token);
+              window.location.reload();  // Recargar la página
+
+            } else {
+              console.log('Credenciales inválidas');
+            }
+          });
+      }
+    });
+  });
   function loadMenuItems() {
     const localVersion = localStorage.getItem('menuVersion');
     // return fetch('http://localhost:3001/api/menuVersion')
