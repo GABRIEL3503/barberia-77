@@ -2365,9 +2365,40 @@ function cambiarFrase() {
 
 // Inicia el carrusel de frases
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
+async function mostrarVisitas() {
+  try {
+    await fetch('/77-prueba/visitas', { method: 'POST' }); // ✅ importante: prefijo correcto
+    const res = await fetch('/77-prueba/visitas'); // ✅ idem
+    const data = await res.json();
 
+    document.getElementById('mes-actual').textContent = data.mes_actual;
+    document.getElementById('mes-anterior').textContent = data.mes_anterior;
+  } catch (err) {
+    console.error('Error al obtener visitas:', err);
+  }
+}
 
-document.addEventListener('DOMContentLoaded', mostrarVisitas);
+document.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('popup-visitas');
+  const abrir = document.getElementById('abrir-popup-visitas');
+  const cerrar = document.getElementById('cerrar-popup-visitas');
+
+  // Abrir popup y cargar visitas
+  abrir.addEventListener('click', async () => {
+    await mostrarVisitas();
+    popup.style.display = 'flex';
+  });
+
+  // Cerrar popup al clickear botón "cerrar"
+  cerrar.addEventListener('click', () => {
+    popup.style.display = 'none';
+  });
+
+  // Cerrar popup al clickear fuera del contenido
+  window.addEventListener('click', (e) => {
+    if (e.target === popup) popup.style.display = 'none';
+  });
+});
 
 async function mostrarVisitas() {
   try {
@@ -2389,28 +2420,7 @@ async function mostrarVisitas() {
     document.getElementById('mes-actual').textContent = data.mes_actual;
     document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} vistas.`;
 
-    document.getElementById('popup-visitas').style.display = 'flex';
   } catch (err) {
     console.error('Error al obtener visitas:', err);
   }
 }
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const popup = document.getElementById('popup-visitas');
-  const abrir = document.getElementById('abrir-popup-visitas');
-  const cerrar = document.getElementById('cerrar-popup-visitas');
-
-  abrir.addEventListener('click', () => {
-    popup.style.display = 'flex';
-    mostrarVisitas();
-  });
-
-  cerrar.addEventListener('click', () => {
-    popup.style.display = 'none';
-  });
-
-  window.addEventListener('click', (e) => {
-    if (e.target === popup) popup.style.display = 'none';
-  });
-});
