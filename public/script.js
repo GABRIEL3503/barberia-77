@@ -69,7 +69,7 @@ const PARENT_GROUPS = [
     title: 'BARBERIA',
     description: 'Un lugar distinto'
   },
-  
+
   {
     id: 'tienda',
     title: 'TIENDA',
@@ -859,7 +859,7 @@ document.addEventListener("DOMContentLoaded", function () {
     orderDetails += `🛒 *Nro:* *${orderId}*\n`;
     orderDetails += `📅 ${formattedDate}\n`;
     orderDetails += `🛵 *Envío:* ${deliveryMethod === 'delivery' ? 'Envío a domicilio' : 'Retiro en local'}\n`;
-    
+
 
     let address = '';
     if (deliveryMethod === 'delivery') {
@@ -880,8 +880,8 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Producto inválido:", product);
         return null;
       }
-      
-      
+
+
       // Extraer `product_id`, `talle`, `color` desde la clave '18-4-verde'
       const [productId, talle, color] = key.split('-');
 
@@ -1563,7 +1563,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }).then(async (result) => {
           if (result.isConfirmed) {
             const nombre = document.getElementById('swal-input1').value.trim();
-            const precio = parseInt(document.getElementById('swal-input2').value.replace(/\./g, ''), 10);
+            const rawPrecio = document.getElementById('swal-input2').value.replace(/\./g, '');
+            const precio = rawPrecio ? parseInt(rawPrecio, 10) : 0;
+            
             const descripcion = document.getElementById('swal-input4').value.trim();
             const tipo = document.getElementById('swal-input3').value;
             const parent_group = document.getElementById('swal-parent-group').value;
