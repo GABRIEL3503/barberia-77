@@ -105,23 +105,32 @@ const hardcodedUser = {
 };
 
 
-// Endpoint de login
 baseRouter.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
 
-  if (username === hardcodedUser.username && bcrypt.compareSync(password, hardcodedUser.password)) {
-    
-    // Generar el token con identificación de la app y tiempo de expiración
+  console.log("🔐 Intento de login recibido:");
+  console.log("🔸 Usuario:", username);
+  console.log("🔸 Contraseña:", password);
+
+  const usernameMatches = username === hardcodedUser.username;
+  const passwordMatches = bcrypt.compareSync(password, hardcodedUser.password);
+
+  console.log("✅ Username OK:", usernameMatches);
+  console.log("✅ Password OK:", passwordMatches);
+
+  if (usernameMatches && passwordMatches) {
     const token = jwt.sign(
       { id: hardcodedUser.username, app: "77-prueba" },
-      JWT_SECRET,
+      JWT_SECRET
     );
-
-    res.status(200).send({ auth: true, token });
+    console.log("🔓 Login exitoso para:", username);
+    return res.status(200).send({ auth: true, token });
   } else {
-    res.status(401).send({ auth: false, message: "Invalid credentials" });
+    console.warn("❌ Login fallido para:", username);
+    return res.status(401).send({ auth: false, message: "Invalid credentials" });
   }
 });
+
 
 // CRUD Endpoints
 
