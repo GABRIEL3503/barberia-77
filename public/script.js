@@ -724,7 +724,7 @@ document.addEventListener("DOMContentLoaded", function () {
     newItem.innerHTML = `
         <div class="item-header">${imgTag}</div>
         <div class="item-content" data-aos="fade-up">
-            <h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre}</h3>
+<h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre && item.nombre !== 'Sin nombre' ? item.nombre : ''}</h3>
             ${priceAndButton}
             <p class="item-description">${item.descripcion}</p>
         </div>
@@ -1563,7 +1563,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }).then(async (result) => {
           if (result.isConfirmed) {
-            const nombre = document.getElementById('swal-input1').value.trim();
+            const nombre = document.getElementById('swal-input1').value.trim() || 'Sin nombre';
             const rawPrecio = document.getElementById('swal-input2').value.replace(/\./g, '');
             const precio = rawPrecio ? parseInt(rawPrecio, 10) : 0;
             
@@ -1779,7 +1779,7 @@ document.addEventListener("DOMContentLoaded", function () {
           focusConfirm: false,
           confirmButtonText: 'Confirmar',
           preConfirm: async () => {
-            const nombre = document.getElementById('swal-input1').value.trim();
+            const nombre = document.getElementById('swal-input1').value.trim() || 'Sin nombre';
             const precio = document.getElementById('swal-input2').value.trim();
             const descripcion = document.getElementById('swal-input4').value.trim();
             const selectedParentGroup = document.getElementById('swal-parent-group').value;
