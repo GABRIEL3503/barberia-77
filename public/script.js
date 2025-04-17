@@ -2367,16 +2367,32 @@ function cambiarFrase() {
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
 async function mostrarVisitas() {
   try {
-    await fetch('/77-prueba/visitas', { method: 'POST' }); // ✅ importante: prefijo correcto
-    const res = await fetch('/77-prueba/visitas'); // ✅ idem
+    await fetch('/77-prueba/visitas', { method: 'POST' });
+    const res = await fetch('/77-prueba/visitas');
     const data = await res.json();
 
+    const hoy = new Date();
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    const dia = hoy.getDate().toString().padStart(2, '0');
+    const mes = hoy.getMonth();
+    const año = hoy.getFullYear();
+
+    document.getElementById('fecha-actual').textContent = `Jueves ${dia}/${mes+1}/${año}`;
     document.getElementById('mes-actual').textContent = data.mes_actual;
-    document.getElementById('mes-anterior').textContent = data.mes_anterior;
+    document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} vistas.`;
+
+    document.getElementById('popup-visitas').style.display = 'flex';
   } catch (err) {
     console.error('Error al obtener visitas:', err);
   }
 }
+
+// Cerrar popup
+document.getElementById('cerrar-popup-visitas').addEventListener('click', () => {
+  document.getElementById('popup-visitas').style.display = 'none';
+});
 
 document.addEventListener('DOMContentLoaded', mostrarVisitas);
 
