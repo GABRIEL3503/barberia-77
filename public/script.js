@@ -2395,27 +2395,6 @@ document.getElementById('cerrar-popup-visitas').addEventListener('click', () => 
 });
 
 document.addEventListener('DOMContentLoaded', mostrarVisitas);
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-  const popup = document.getElementById('popup-visitas');
-  const abrir = document.getElementById('abrir-popup-visitas');
-  const cerrar = document.getElementById('cerrar-popup-visitas');
-
-  abrir.addEventListener('click', () => {
-    popup.style.display = 'flex';
-    mostrarVisitas();
-  });
-
-  cerrar.addEventListener('click', () => {
-    popup.style.display = 'none';
-  });
-
-  window.addEventListener('click', (e) => {
-    if (e.target === popup) popup.style.display = 'none';
-  });
-});
 async function mostrarVisitas() {
   try {
     await fetch('/77-prueba/visitas', { method: 'POST' });
@@ -2441,3 +2420,24 @@ async function mostrarVisitas() {
     console.error('Error al obtener visitas:', err);
   }
 }
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const popup = document.getElementById('popup-visitas');
+  const abrir = document.getElementById('abrir-popup-visitas');
+  const cerrar = document.getElementById('cerrar-popup-visitas');
+
+  abrir.addEventListener('click', () => {
+    popup.style.display = 'flex';
+    mostrarVisitas();
+  });
+
+  cerrar.addEventListener('click', () => {
+    popup.style.display = 'none';
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target === popup) popup.style.display = 'none';
+  });
+});
