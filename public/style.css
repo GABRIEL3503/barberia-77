@@ -5,7 +5,7 @@ body {
   margin: 0;
   background-size: auto;
   background-position: center;
-  font-family:"archivo-extra-condensed";
+  font-family: "Oswald", sans-serif;
 
 
 }
@@ -551,8 +551,8 @@ h2 {
 }
 
 h2 span {
-  font-family: "Roboto Condensed", sans-serif;
-; font-weight: 800;
+  font-family: "Oswald", sans-serif;
+; font-weight: 400;
   display: flex;
   color: #000000;
   font-size: 80px;
@@ -1720,9 +1720,6 @@ input[type="radio"]:checked::before {
   }
 }
 
-.group-title {
-  text-transform: lowercase;
-}
 
 .group-title::first-letter {
   text-transform: uppercase;
@@ -1733,7 +1730,7 @@ input[type="radio"]:checked::before {
   color: #000000;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 /* Ajustes para el drag and drop */
@@ -1789,11 +1786,13 @@ input[type="radio"]:checked::before {
   }
 }
 .group-description {
-  color: #000000 !important;
-  margin-top: -22px;
-  font-family:"archivo-extra-condensed";
-  ;
-  font-size: 43px;
+  font-weight: 400;
+    text-align: center;
+    width: 100%;
+    color: #000000 !important;
+    margin-top: -22px;
+    font-family: "Oswald", sans-serif;
+    font-size: 43px;
 }
 
 .parallax-container {
