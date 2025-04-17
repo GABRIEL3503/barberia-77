@@ -101,8 +101,9 @@ const JWT_SECRET = process.env.JWT_SECRET || "clave-unica-de-esta-app-77-prueba"
 // Hardcoded user for demonstration purposes
 const hardcodedUser = {
   username: "barberia77",
-  password: bcrypt.hashSync("38898668", 8)  // Hashed password
+  password: "$2a$08$u0ZuHML/bUSqp5uZ2ZJZMeOCTZnssu0jGNAvmdWT79a/UWdeSm5tu"
 };
+
 
 // Endpoint de login
 baseRouter.post('/api/auth/login', (req, res) => {
