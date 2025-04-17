@@ -301,29 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
         containerBotones.appendChild(switchButton);
       }
     }
-    let ordersButton = document.querySelector('.orders-button');
-    if (!ordersButton) {
-      ordersButton = document.createElement('button');
-      ordersButton.classList.add('orders-button', 'auth-required');
-      ordersButton.style.display = 'none';
-
-      const icon = document.createElement('img');
-      icon.src = 'img/shopping_cart_28dp_007BFF_FILL0_wght400_GRAD0_opsz24.png'; // Reemplaza con un ícono de pedidos si lo deseas
-      icon.alt = 'Ícono de Pedidos';
-      icon.classList.add('button-icon');
-      ordersButton.appendChild(icon);
-
-      ordersButton.appendChild(document.createTextNode('Pedidos'));
-
-      // Agregar evento de clic para redirigir
-      ordersButton.addEventListener('click', () => {
-        window.location.href = '/77-prueba/admin.html';
-      });
-
-      if (containerBotones) {
-        containerBotones.appendChild(ordersButton);
-      }
-    }
+    
     switchButton.addEventListener('click', toggleSortable);
 
     function toggleSortable() {
