@@ -220,7 +220,7 @@ p {
   font-weight: 700;
   /* font-style: italic; */
   max-width: 80%;
-  font-family: "Archivo", sans-serif;
+  font-family: "Oswald", sans-serif;
   letter-spacing: 2px;
   margin-top: 31px;
   color: #ffffff!important;
@@ -254,9 +254,7 @@ p {
   color: #ffffff;
   letter-spacing: -0.5px;
   margin-left: 286px;
-  font-family: "Archivo", sans-serif;
-  ;
-
+  font-family: "Oswald", sans-serif;
   font-size: 64px;
   font-weight: 400;
 }
