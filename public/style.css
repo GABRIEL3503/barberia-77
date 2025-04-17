@@ -180,9 +180,10 @@ background-image: url(img/background.webp)  ;
 
 
 .item-description {
-  font-weight: 500;
-  font-family: "Roboto", sans-serif;
+  font-weight: 400;
 ;
+font-family: "Archivo", sans-serif;
+
   font-size: 48px;
   font-style: normal;
   color: #ffffff !important;
@@ -253,8 +254,8 @@ p {
   color: #ffffff;
   letter-spacing: -0.5px;
   margin-left: 286px;
-  font-family: "Roboto", sans-serif;
-;
+  font-family: "Archivo", sans-serif;
+  ;
 
   font-size: 64px;
   font-weight: 400;
