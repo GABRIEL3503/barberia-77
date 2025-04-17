@@ -2391,19 +2391,10 @@ async function mostrarVisitas() {
   }
 }
 
+
 document.addEventListener('DOMContentLoaded', mostrarVisitas);
 
-async function mostrarVisitas() {
-  try {
-    await fetch('/77-prueba/visitas', { method: 'POST' });
-    const res = await fetch('/77-prueba/visitas');
-    const data = await res.json();
-    document.getElementById('mes-actual').textContent = data.mes_actual;
-    document.getElementById('mes-anterior').textContent = data.mes_anterior;
-  } catch (err) {
-    console.error('Error al obtener visitas:', err);
-  }
-}
+
 
 document.addEventListener('DOMContentLoaded', () => {
   const popup = document.getElementById('popup-visitas');
