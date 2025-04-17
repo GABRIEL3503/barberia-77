@@ -2365,6 +2365,10 @@ function cambiarFrase() {
 
 // Inicia el carrusel de frases
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
+
+
+document.addEventListener('DOMContentLoaded', mostrarVisitas);
+
 async function mostrarVisitas() {
   try {
     await fetch('/77-prueba/visitas', { method: 'POST' });
@@ -2390,10 +2394,6 @@ async function mostrarVisitas() {
     console.error('Error al obtener visitas:', err);
   }
 }
-
-
-document.addEventListener('DOMContentLoaded', mostrarVisitas);
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
