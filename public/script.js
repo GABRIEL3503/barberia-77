@@ -305,6 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!ordersButton) {
       ordersButton = document.createElement('button');
       ordersButton.classList.add('orders-button', 'auth-required');
+      ordersButton.style.display = 'none';
 
       const icon = document.createElement('img');
       icon.src = 'img/shopping_cart_28dp_007BFF_FILL0_wght400_GRAD0_opsz24.png'; // Reemplaza con un ícono de pedidos si lo deseas
