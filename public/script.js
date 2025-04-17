@@ -2372,36 +2372,6 @@ async function mostrarVisitas() {
     const data = await res.json();
 
     const hoy = new Date();
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-
-    const dia = hoy.getDate().toString().padStart(2, '0');
-    const mes = hoy.getMonth();
-    const año = hoy.getFullYear();
-
-    document.getElementById('fecha-actual').textContent = `Jueves ${dia}/${mes+1}/${año}`;
-    document.getElementById('mes-actual').textContent = data.mes_actual;
-    document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} vistas.`;
-
-    document.getElementById('popup-visitas').style.display = 'flex';
-  } catch (err) {
-    console.error('Error al obtener visitas:', err);
-  }
-}
-
-// Cerrar popup
-document.getElementById('cerrar-popup-visitas').addEventListener('click', () => {
-  document.getElementById('popup-visitas').style.display = 'none';
-});
-
-document.addEventListener('DOMContentLoaded', mostrarVisitas);
-async function mostrarVisitas() {
-  try {
-    await fetch('/77-prueba/visitas', { method: 'POST' });
-    const res = await fetch('/77-prueba/visitas');
-    const data = await res.json();
-
-    const hoy = new Date();
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
@@ -2422,6 +2392,19 @@ async function mostrarVisitas() {
 }
 
 
+document.addEventListener('DOMContentLoaded', mostrarVisitas);
+
+async function mostrarVisitas() {
+  try {
+    await fetch('/77-prueba/visitas', { method: 'POST' });
+    const res = await fetch('/77-prueba/visitas');
+    const data = await res.json();
+    document.getElementById('mes-actual').textContent = data.mes_actual;
+    document.getElementById('mes-anterior').textContent = data.mes_anterior;
+  } catch (err) {
+    console.error('Error al obtener visitas:', err);
+  }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const popup = document.getElementById('popup-visitas');
