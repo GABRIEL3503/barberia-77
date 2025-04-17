@@ -101,8 +101,9 @@ const JWT_SECRET = process.env.JWT_SECRET || "clave-unica-de-esta-app-77-prueba"
 // Hardcoded user for demonstration purposes
 const hardcodedUser = {
   username: "barberia77",
-  password: "$2a$08$uDYJu.TdL3.yqF68xU/f6ubTzTIXfWkA.0UuXQLZjSoNKf6DRsOE6"
+  password: "$2a$08$p/S4O1fnBXVy10oteN4ghuWkpCe1XnvXvBQofU5dmXxcPb67aPsF."
 };
+
 
 
 
