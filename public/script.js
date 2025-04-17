@@ -1783,7 +1783,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             const formData = new FormData();
             formData.append('nombre', nombre);
-            formData.append('precio', precio.replace(/\./g, ''));
+            formData.append('precio', precio ? precio.replace(/\./g, '') : '0');
             formData.append('descripcion', descripcion);
             formData.append('parent_group', selectedParentGroup);
 
