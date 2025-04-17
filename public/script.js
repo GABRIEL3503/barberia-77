@@ -209,9 +209,10 @@ document.addEventListener("DOMContentLoaded", function () {
       focusConfirm: false,
       preConfirm: () => {
         return {
-          username: document.getElementById('swal-username').value,
-          password: document.getElementById('swal-password').value
+          username: document.getElementById('swal-username').value.trim(),
+          password: document.getElementById('swal-password').value.trim()
         };
+        
       }
     }).then((result) => {  // Asegúrate de que este bloque esté dentro de la llamada a Swal.fire
       if (result.isConfirmed) {
