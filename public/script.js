@@ -705,7 +705,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const priceAndButton = `
         <div class="price-button-container">
-          <span class="item-price ${item.subelement ? 'with-description' : ''}">$${formatPrice(item.precio)}</span>
+     <span class="item-price ${item.subelement ? 'with-description' : ''}">
+  ${item.precio > 0 ? `$${formatPrice(item.precio)}` : ''}
+</span>
+
           <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
         </div>
     `;
