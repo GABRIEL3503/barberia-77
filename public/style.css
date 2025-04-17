@@ -2524,3 +2524,6 @@ font-size: 2.1rem;
     .add-to-cart-btn{
       display: none!important;
     }
+    #edit-delivery-price-button, .orders-button{
+      display: none;
+    }
