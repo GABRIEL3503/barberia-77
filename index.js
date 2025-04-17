@@ -272,7 +272,7 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
     return res.status(400).json({ error: "Formato inválido en el stock." });
   }
 
-  const precioEntero = parseInt(precio.toString().replace(/\./g, ""));
+  const precioEntero = parseInt((precio || "0").toString().replace(/\./g, "")) || 0;
 
   db.serialize(() => {
     db.run("BEGIN TRANSACTION");
