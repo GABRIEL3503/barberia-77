@@ -22,7 +22,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #84592ed2;
+  background-color: #00000059;
   /* Fondo transparente */
   position: fixed;
   top: 0;
@@ -102,8 +102,7 @@ margin-top: -566px;
 margin-bottom: 88px;}
 
 .container {
-  background-color:  #F1F2F3
-  ;
+background-image: url(img/background.webp)  ;
   position: relative;
   /* Establecer el contexto de posicionamiento para los elementos hijos */
   overflow: hidden;
@@ -131,7 +130,6 @@ margin-bottom: 88px;}
 .image-container {
   width: 100%;
   align-items: center;
-  background-image: url(img/FondoInicio.png);
   /* margin-top: 720px; */
   display: flex
 ;
@@ -187,7 +185,7 @@ margin-bottom: 88px;}
 ;
   font-size: 48px;
   font-style: normal;
-  color: #301F1E !important;
+  color: #ffffff !important;
 
 }
 
@@ -224,7 +222,7 @@ p {
   font-family: "Roboto", sans-serif;
   letter-spacing: 2px;
   margin-top: 31px;
-  color: #84592E;
+  color: #ffffff!important;
   /* margin: 6px; */
   font-size: 72px;
 }
@@ -252,7 +250,7 @@ p {
 } */
 
 .item-price {
-  color: #301F1E;
+  color: #ffffff;
   letter-spacing: -0.5px;
   margin-left: 286px;
   font-family: "Roboto", sans-serif;
@@ -556,7 +554,7 @@ h2 span {
   font-family: "Roboto Condensed", sans-serif;
 ; font-weight: 800;
   display: flex;
-  color: #84592E;
+  color: #000000;
   font-size: 80px;
   line-height: 1.2;
   justify-content: center;
@@ -1732,9 +1730,8 @@ input[type="radio"]:checked::before {
 }
 
 .group-title {
-  display: none;
   font-size: 6.4rem;
-  color: #3C3762;
+  color: #000000;
   text-align: center;
   margin-bottom: 1.5rem;
   font-weight: 800;
@@ -1793,8 +1790,7 @@ input[type="radio"]:checked::before {
   }
 }
 .group-description {
-  display: none;
-  color: #3C3762 !important;
+  color: #000000 !important;
   margin-top: -22px;
   font-family: 'Satoshi', sans-serif;
 ;
@@ -1850,7 +1846,7 @@ input[type="radio"]:checked::before {
   position: fixed;
   top: 0;
   width: 100%;
-  background-color: #84592ed2;
+  background-color: #00000059;
   /* Fondo claro */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   /* Sombra */
@@ -2522,5 +2518,9 @@ font-size: 2.1rem;
     }
 
     #cart-button{
+      display: none!important;
+    }
+
+    .add-to-cart-btn{
       display: none!important;
     }

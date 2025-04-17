@@ -555,7 +555,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const hasParallax = group.id === 'barberia' || group.id === 'tienda';
       const parallaxHTML = hasParallax ? `
           <div class="parallax-container">
-              <img src="img/Paralax ${group.id === 'seccion' ? '1' : '2'} frase.webp">
+<img src="img/Paralax ${group.id} frase.webp">
               <h3 class="parallax-text"></h3>
           </div>
         ` : '';

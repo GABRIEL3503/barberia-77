@@ -200,7 +200,7 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
 
 function insertMenuItem(nombre, precio, descripcion, tipo, img_url, subelement, stock, parent_group, res) {
   const db = ensureDatabaseConnection();
-  const precioEntero = parseInt(precio.toString().replace(/\./g, ''));
+  const precioEntero = parseInt((precio || "0").toString().replace(/\./g, "")) || 0;
 
   db.run(
     'INSERT INTO menu_items (nombre, precio, descripcion, tipo, img_url, subelement, parent_group) VALUES (?, ?, ?, ?, ?, ?, ?)',
@@ -259,9 +259,10 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
   const { id } = req.params;
   const { nombre, precio, descripcion, tipo, stock, parent_group } = req.body;
 
-  if (!nombre || !precio || !descripcion || !tipo || !stock) {
-    return res.status(400).json({ error: "Faltan datos obligatorios." });
+  if (!nombre || !descripcion || !tipo || !stock) {
+    return res.status(400).json({ error: "Faltan datos obligatorios (nombre, tipo, descripción o stock)." });
   }
+  
 
   let parsedStock = [];
   try {
