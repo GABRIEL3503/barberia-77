@@ -1787,6 +1787,7 @@ input[type="radio"]:checked::before {
   }
 }
 .group-description {
+  line-height: 64px;
   font-weight: 400;
     text-align: center;
     width: 100%;
