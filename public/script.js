@@ -2391,7 +2391,6 @@ async function mostrarVisitas() {
   }
 }
 
-
 document.addEventListener('DOMContentLoaded', mostrarVisitas);
 
 async function mostrarVisitas() {
