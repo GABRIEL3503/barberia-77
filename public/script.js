@@ -521,41 +521,51 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function renderMenuItems(menuData) {
     const container = document.querySelector('.container');
-
+  
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
-    container.querySelectorAll('.menu-group').forEach(group => group.remove());
-
+    container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
+  
     const isAuthenticated = !!localStorage.getItem('jwt_77-prueba');
     const lastCreatedId = localStorage.getItem('lastCreatedItemId');
-
+  
     const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
+      const existing = container.querySelector(`.menu-group[data-group="${group.id}"]`);
+      if (existing) {
+        containers[group.id] = existing;
+        return containers;
+      }
+  
       const groupContainer = document.createElement('div');
       groupContainer.className = 'menu-group';
       groupContainer.setAttribute('data-group', group.id);
+  
       const hasParallax = group.id === 'barberia' || group.id === 'tienda';
       const parallaxHTML = hasParallax ? `
-          <div class="parallax-container">
-<img src="img/Paralax ${group.id} frase.webp">
-              <h3 class="parallax-text"></h3>
-          </div>
-        ` : '';
+        <div class="parallax-container">
+          <img src="img/Paralax ${group.id} frase.webp">
+          <h3 class="parallax-text"></h3>
+        </div>
+      ` : '';
+  
       groupContainer.innerHTML = `
         <span class="group-header">
-            ${parallaxHTML}
-            <h1 class="group-title">${group.title}</h1>
-            <p class="group-description">${group.description}</p>
+          ${parallaxHTML}
+          <h1 class="group-title">${group.title}</h1>
+          <p class="group-description">${group.description}</p>
         </span>
-        `;
-
+      `;
+  
       container.appendChild(groupContainer);
       containers[group.id] = groupContainer;
       return containers;
     }, {});
+  
     const sections = {};
+  
     menuData.forEach(item => {
       const parentGroup = item.parent_group || 'barberia';
       const sectionKey = `${parentGroup}-${item.tipo}`;
-
+  
       if (!sections[sectionKey]) {
         const menuSection = document.createElement('div');
         menuSection.className = 'menu-section';
@@ -563,54 +573,52 @@ document.addEventListener("DOMContentLoaded", function () {
         menuSection.setAttribute('data-type', item.tipo);
         menuSection.innerHTML = `
           <h2 class="section-title">
-    <span>~ ${capitalizeFirstLetter(item.tipo.toLowerCase())} ~</span>
+            <span>~ ${capitalizeFirstLetter(item.tipo.toLowerCase())} ~</span>
           </h2>
         `;
-
+  
         sections[sectionKey] = menuSection;
         parentContainers[parentGroup].appendChild(menuSection);
       }
-
+  
       const newItem = createMenuItem(item);
       newItem.dataset.id = item.id;
       newItem.dataset.hidden = item.hidden;
-
+  
       const menuItem = newItem.querySelector('.menu-item');
-
+  
       const buttonsContainer = document.createElement('span');
       buttonsContainer.className = 'admin-buttons-container';
-
+  
       const editButton = menuItem.querySelector('.edit-button');
       if (editButton) buttonsContainer.appendChild(editButton);
-
+  
       const hideShowButton = document.createElement('button');
       hideShowButton.className = 'hide-show-button auth-required';
       hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
       hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
       buttonsContainer.appendChild(hideShowButton);
-
+  
       menuItem.appendChild(buttonsContainer);
-
+  
       if (item.hidden) {
         newItem.style.display = isAuthenticated ? 'block' : 'none';
         newItem.style.opacity = isAuthenticated ? '0.3' : '1';
       }
-
-      // Insertar como primer hijo visible después del título
+  
       const section = sections[sectionKey];
       const afterTitle = section.querySelector('h2.section-title')?.nextSibling;
       section.insertBefore(newItem, afterTitle || null);
-
-
     });
-
+  
     checkAuthentication();
+  
     const tipo = localStorage.getItem('lastCreatedItemTipo');
     const grupo = localStorage.getItem('lastCreatedItemGrupo');
-
+  
     if (tipo && grupo) {
       const targetSelector = `.menu-group[data-group="${grupo}"] .menu-section[data-type="${tipo}"]`;
-
+  
       const waitForOffset = (callback) => {
         const section = document.querySelector(targetSelector);
         if (section && section.offsetTop > 0) {
@@ -625,15 +633,22 @@ document.addEventListener("DOMContentLoaded", function () {
           requestAnimationFrame(() => waitForOffset(callback));
         }
       };
-
+  
       waitForOffset(() => {
         if (typeof AOS !== 'undefined') {
-          AOS.refresh(); // ⚡ Solo después del scroll
+          AOS.refresh();
         }
       });
     }
-
+  
+    // 🧩 Reubicar grupo estático al fondo siempre
+    const staticGroup = container.querySelector('.menu-group.static-group');
+    if (staticGroup) {
+      container.appendChild(staticGroup);
+    }
   }
+  
+  
 
 
 
@@ -2121,32 +2136,26 @@ function capitalizeFirstLetter(string) {
 
 function loadMenuSections() {
   fetch('https://octopus-app.com.ar/77-prueba/api/sections')
-
     .then(response => response.json())
     .then(data => {
       const sections = data.data;
       const navbarLinks = document.getElementById('navbar-links');
-
-      // Limpiar enlaces actuales
       navbarLinks.innerHTML = '';
+
+      // 🔁 Generar enlaces dinámicos por grupo
       PARENT_GROUPS.forEach(group => {
         const groupContainer = document.createElement('div');
         groupContainer.className = 'nav-group';
 
-        // Crear enlace del grupo padre
         const parentLink = document.createElement('a');
         parentLink.href = '#';
         parentLink.className = 'parent-link';
         parentLink.dataset.group = group.id;
         parentLink.innerHTML = `${group.title} <img src="img/call_made_20dp_FILL0_wght400_GRAD0_opsz20.png" alt="">`;
 
-        groupContainer.appendChild(parentLink);
-
-        // Crear contenedor para los enlaces de sección de este grupo
         const sectionsContainer = document.createElement('div');
         sectionsContainer.className = 'section-links';
 
-        // Agregar enlaces de secciones del menú
         sections.forEach(section => {
           if (section.parent_group === group.id) {
             const link = document.createElement('a');
@@ -2158,11 +2167,24 @@ function loadMenuSections() {
           }
         });
 
+        groupContainer.appendChild(parentLink);
         groupContainer.appendChild(sectionsContainer);
         navbarLinks.appendChild(groupContainer);
       });
 
-      // Añadir eventos de click a todos los enlaces
+      // ✅ Agregar sección estática: RESEÑAS
+      const reseñasGroup = document.createElement('div');
+      reseñasGroup.className = 'nav-group';
+
+      const reseñasLink = document.createElement('a');
+      reseñasLink.href = '#reseñas'; // ID de sección
+      reseñasLink.className = 'parent-link';
+      reseñasLink.innerHTML = `RESEÑAS <img src="img/call_made_20dp_FILL0_wght400_GRAD0_opsz20.png" alt="">`;
+
+      reseñasGroup.appendChild(reseñasLink);
+      navbarLinks.appendChild(reseñasGroup);
+
+      // 🔁 Reaplicar eventos
       addNavbarLinkEvents();
     })
     .catch(err => {
@@ -2170,51 +2192,58 @@ function loadMenuSections() {
     });
 }
 
+
+
+
 function addNavbarLinkEvents() {
-  // Enlaces de sección
+  const navbarLinks = document.getElementById('navbar-links');
+  const hamburger = document.getElementById('hamburger');
+
+  // Enlaces de sección (internos)
   const menuLinks = document.querySelectorAll('.navbar-links a[data-type]');
   menuLinks.forEach(link => {
     link.addEventListener('click', function (e) {
       e.preventDefault();
+
       const targetType = this.getAttribute('data-type');
       const targetGroup = this.getAttribute('data-group');
 
-      // Primero encontrar el grupo correcto
       const targetGroupContainer = document.querySelector(`.menu-group[data-group="${targetGroup}"]`);
       if (!targetGroupContainer) return;
 
-      // Luego buscar la sección dentro de ese grupo
       const targetSection = targetGroupContainer.querySelector(`.menu-section[data-type="${targetType}"]`);
-
       if (targetSection) {
         window.scrollTo({
-          top: targetSection.offsetTop - 100, // Ajuste para el navbar fijo
+          top: targetSection.offsetTop - 100,
           behavior: 'smooth'
         });
-        navbarLinks.classList.remove('active');
-        hamburger.classList.remove('active');
+
+        if (navbarLinks) navbarLinks.classList.remove('active');
+        if (hamburger) hamburger.classList.remove('active');
       }
     });
   });
 
-  // Enlaces padre (grupos)
+  // Enlaces padre (BARBERIA, TIENDA)
   const parentLinks = document.querySelectorAll('.navbar-links .parent-link');
   parentLinks.forEach(link => {
     link.addEventListener('click', function (e) {
+      const groupContainer = this.closest('.nav-group');
+      const sectionLinks = groupContainer?.querySelector('.section-links');
+
+      if (!sectionLinks) return; // 🚫 RESEÑAS no tiene hijos, no despliega
+
       e.preventDefault();
-      const groupContainer = this.parentElement;
-      const sectionLinks = groupContainer.querySelector('.section-links');
 
       const isVisible = sectionLinks.style.display === 'block';
       sectionLinks.style.display = isVisible ? 'none' : 'block';
 
-      // Toggle clase para rotar ícono
       this.classList.toggle('open', !isVisible);
     });
   });
-
-
 }
+
+
 function scrollFunction() {
   const navbar = document.querySelector('.navbar'); // Selecciona el navbar
 
@@ -2424,3 +2453,14 @@ async function mostrarVisitas() {
     console.error('Error al obtener visitas:', err);
   }
 }
+window.addEventListener('load', () => {
+  const navbar = document.getElementById('navbar-links');
+  if (!navbar) return;
+
+  const link = document.createElement('a');
+  link.href = '#reseñas'; // ⬅️ usa el ID directo
+  link.textContent = 'RESEÑAS';
+  link.className = 'parent-link';
+
+  navbar.appendChild(link);
+});

@@ -7,18 +7,20 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Catalogo Digital">
   <meta property="og:description" content="Soluciones digitales">
-  
+
   <!-- Etiqueta para la imagen -->
   <meta property="og:image" content="https://octopus-app.com.ar/carta/img/Carta-Digital-Logo.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Oswald:wght@200..700&display=swap"
+    rel="stylesheet">
 
   <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
- 
+
 
   <link rel="stylesheet" href="style.css">
 </head>
@@ -30,25 +32,27 @@
 
 
   <nav class="navbar">
-    <div class="navbar-logo"><img src="img/logoBarberHorizontalNavFooter.png" alt="">    <p>MENÚ</p>
+    <div class="navbar-logo"><img src="img/logoBarberHorizontalNavFooter.png" alt="">
+      <p>MENÚ</p>
     </div>
     <div class="hamburger" id="hamburger">
       <div class="bar1"></div>
       <div class="bar2"></div>
       <div class="bar3"></div>
-  </div>
-  <div class="navbar-links" id="navbar-links">
+    </div>
+    <div class="navbar-links" id="navbar-links">
       <!-- Los enlaces de las secciones del menú se cargarán dinámicamente aquí -->
-  </div>
+    </div>
   </nav>
-  
+
   <div class="container">
     <!-- <img src="img/FileteIzqArriba.png" class="corner top-left" alt="Top Left">
     <img src="img/FiletesDerArriba.png" class="corner top-right" alt="Top Right">
     <img src="img/Filet-izquierdo-abaj.png" class="corner bottom-left" alt="Bottom Left">
     <img src="img/filete-derech-abaj.png" class="corner bottom-right" alt="Bottom Right"> -->
     <div class="image-container">
-      <img class="puff-in-center" src="img/logoBarberCuadradoInicio.png" alt="Imagen del Restaurante" id="animatedElement">
+      <img class="puff-in-center" src="img/logoBarberCuadradoInicio.png" alt="Imagen del Restaurante"
+        id="animatedElement">
     </div>
     <span class="redes-iconos">
       <a target="_blank" href=""><img src="img/iconoUbi.png" alt=""></a>
@@ -58,37 +62,50 @@
     </span>
     <div class="arrow-container" onclick="scrollToGroupTitle()">
       <img src="img/flechaInicio.png" alt="Flecha">
-  </div>
+    </div>
     <span class="container-botones">
-      <span class="contenedoruno" >
-    <button  id="create-item-button" class="edit-button auth-required"><img src="img/mas.png" alt=""> Nuevo</button>
-  </span>
-    <button id="create-announcement-button" class="edit-button auth-required"><img src="img/anunc.png" alt="">Anuncio</button>
- 
-    <button id="abrir-popup-visitas" class="edit-button auth-required" style="display: inline-block;">
-      <img src="img/visibility.png" alt="Icono Vistas"> Vistas
-    </button>
-    
-  </span>
+      <span class="contenedoruno">
+        <button id="create-item-button" class="edit-button auth-required"><img src="img/mas.png" alt=""> Nuevo</button>
+      </span>
+      <button id="create-announcement-button" class="edit-button auth-required"><img src="img/anunc.png"
+          alt="">Anuncio</button>
+
+      <button id="abrir-popup-visitas" class="edit-button auth-required" style="display: inline-block;">
+        <img src="img/visibility.png" alt="Icono Vistas"> Vistas
+      </button>
+
+    </span>
 
 
-  <div class="footer-left">
-    <span class="social-footer">
-      <img  src="img/logoBarberHorizontalNavFooter.png" alt="Logo" class="logo">
-      <div class="social-icons">
-        <span class="redes-icons">
-          <a target="_blank" href=""><img src="img/iconoUbi.png" alt=""></a>
-          <a target="_blank" href=""><img src="img/iconoReseñas.png" alt=""></a>
-          <a target="_blank" href="https://www.instagram.com/"><img src="img/iconoIG.png" alt=""></a>
-    
-        </span>
-          </div>
-        </span>
-                  <span>
-            <button id="login-button">Iniciar Sesión</button>
-            <button id="logout-button" class="auth-required">Cerrar Sesión</button>
+    <div class="footer-left">
+      <span class="social-footer">
+        <img src="img/logoBarberHorizontalNavFooter.png" alt="Logo" class="logo">
+        <div class="social-icons">
+          <span class="redes-icons">
+            <a target="_blank" href=""><img src="img/iconoUbi.png" alt=""></a>
+            <a target="_blank" href=""><img src="img/iconoReseñas.png" alt=""></a>
+            <a target="_blank" href="https://www.instagram.com/"><img src="img/iconoIG.png" alt=""></a>
+
           </span>
         </div>
+      </span>
+      <span>
+        <button id="login-button">Iniciar Sesión</button>
+        <button id="logout-button" class="auth-required">Cerrar Sesión</button>
+      </span>
+    </div>
+    <div id="reseñas" class="menu-group static-group" data-group="custom">
+      <span class="group-header">
+        <h2 class="section-title"><span>~ Reseñas ~</span></h2>
+        <img src="img/imgReseñas.png" alt="">
+        <a href="" class="btn-reseñas">Dejanos tu Reseña</a>
+
+      </span>
+
+
+    </div>
+
+
 
   </div>
   <div id="popup-visitas" class="popup-overlay" style="display: none;">
@@ -100,67 +117,68 @@
       <button id="cerrar-popup-visitas" class="popup-close">Cerrar</button>
     </div>
   </div>
-  
-<!-- Botón flotante para el carrito -->
-<button style="display: none;" id="cart-button" class="floating-cart-btn">
-  <img src="img/CarritoIcon.png" alt=""> <p>Pedido</p>
-</button>
 
-<button id="scrollToTopButton" class="scroll-button" onclick="scrollToTop()">
-  <img src="img/chevron-up-regular-48.png" alt="Subir">
-</button>
+  <!-- Botón flotante para el carrito -->
+  <button style="display: none;" id="cart-button" class="floating-cart-btn">
+    <img src="img/CarritoIcon.png" alt="">
+    <p>Pedido</p>
+  </button>
 
-<button id="scrollToBottomButton" class="scroll-button" onclick="scrollToBottom()">
-  <img src="img/chevron-down-regular-48.png" alt="Bajar">
-</button>
-<div id="footer">
-  <!-- Contenedor de la frase dinámica -->
-  <div class="frase-container">
-    <p id="frase" class="frase">Vos también podés digitalizarte</p>
-  </div>
+  <button id="scrollToTopButton" class="scroll-button" onclick="scrollToTop()">
+    <img src="img/chevron-up-regular-48.png" alt="Subir">
+  </button>
 
-  <!-- Botón Contactanos -->
-  <div class="boton-container">
-    <a href="https://linktr.ee/octopus.solucionesdigitales" target="_blank" class="btn-conocenos">Conocenos</a>
-  </div>
-<img class="logotip" src="img/LogotipoOctopusHorizontal.png" alt="">
-  <!-- Información del footer -->
-  <div class="footer-info">
-    <div class="logo-footer">
-      <img src="img/CatDigLogoHor.png" alt="Logo Octopus" />
+  <button id="scrollToBottomButton" class="scroll-button" onclick="scrollToBottom()">
+    <img src="img/chevron-down-regular-48.png" alt="Bajar">
+  </button>
+  <div id="footer">
+    <!-- Contenedor de la frase dinámica -->
+    <div class="frase-container">
+      <p id="frase" class="frase">Vos también podés digitalizarte</p>
     </div>
-    <p>Todos los derechos reservados. © 2025</p>
+
+    <!-- Botón Contactanos -->
+    <div class="boton-container">
+      <a href="https://linktr.ee/octopus.solucionesdigitales" target="_blank" class="btn-conocenos">Conocenos</a>
+    </div>
+    <img class="logotip" src="img/LogotipoOctopusHorizontal.png" alt="">
+    <!-- Información del footer -->
+    <div class="footer-info">
+      <div class="logo-footer">
+        <img src="img/CatDigLogoHor.png" alt="Logo Octopus" />
+      </div>
+      <p>Todos los derechos reservados. © 2025</p>
 
 
+    </div>
   </div>
-</div>
   <div id="loader">
-    <div class="loading-gif"> 
-        <img class="flip-in-ver-left  pic" src="img/Pictograma.png" alt="Loader Icon">
+    <div class="loading-gif">
+      <img class="flip-in-ver-left  pic" src="img/Pictograma.png" alt="Loader Icon">
     </div>
     <span>
-    <img src="img/LogoCatalogo para loader.png" alt="App Logo">
-    <div class="progress-bar">
+      <img src="img/LogoCatalogo para loader.png" alt="App Logo">
+      <div class="progress-bar">
         <div class="progress"></div>
-    </div>
-    <img class="img-load" src="img/Octopus loader.png" alt="Extra Loader Image">
-  </span>
+      </div>
+      <img class="img-load" src="img/Octopus loader.png" alt="Extra Loader Image">
+    </span>
   </div>
 
   <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
   <script>
     AOS.init();
   </script>
-      <script src="https://sdk.mercadopago.com/js/v2"></script>
-      <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.1.1/dist/compressor.min.js"></script>
+  <script src="https://sdk.mercadopago.com/js/v2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/compressorjs@1.1.1/dist/compressor.min.js"></script>
 
-      <script src="script.js"></script>
-      <script src="scriptadmin.js"></script>
-      <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script src="script.js"></script>
+  <script src="scriptadmin.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-      <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
-      <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+  <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
 

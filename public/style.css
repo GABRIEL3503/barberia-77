@@ -2578,3 +2578,33 @@ font-size: 2.1rem;
       border-radius: 8px;
       cursor: pointer;
     }
+    #reseñas .group-header {
+      padding: 184px 44px;
+      display: flex
+  ;
+      flex-direction: column;
+      align-content: center;
+      align-items: center;}
+
+      #reseñas img{  padding: 64px;
+      border-radius: 140px};
+
+      .btn-reseñas{
+        text-align: center;
+        color: white;
+        background-color: #1a1a1a;
+        text-decoration: none;
+        border-radius: 18px;
+        padding: 20px;
+        width: 79%;
+      }a.btn-reseñas {
+        font-size: 14px;
+        font-family: "Archivo", sans-serif;
+        text-align: center;
+        color: white;
+        background-color: #1a1a1a;
+        text-decoration: none;
+        border-radius: 18px;
+        padding: 20px;
+        width: 79%;      }
+      
