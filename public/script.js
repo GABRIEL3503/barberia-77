@@ -2453,14 +2453,3 @@ async function mostrarVisitas() {
     console.error('Error al obtener visitas:', err);
   }
 }
-window.addEventListener('load', () => {
-  const navbar = document.getElementById('navbar-links');
-  if (!navbar) return;
-
-  const link = document.createElement('a');
-  link.href = '#reseñas'; // ⬅️ usa el ID directo
-  link.textContent = 'RESEÑAS';
-  link.className = 'parent-link';
-
-  navbar.appendChild(link);
-});
