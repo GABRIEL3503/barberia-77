@@ -696,52 +696,55 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function createMenuItem(item) {
     const imageUrl = item.img_url || '';
-    let imgTag = imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" onerror="this.onerror=null; this.src='';" />` : '';
-
-    const priceAndButton = `
-        <div class="price-button-container">
-     <span class="item-price ${item.subelement ? 'with-description' : ''}">
-  ${item.precio > 0 ? `$${formatPrice(item.precio)}` : ''}
-</span>
-
+    const imgTag = imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" onerror="this.onerror=null; this.src='';" />` : '';
+  
+    const showPrecio = item.precio && item.precio > 0;
+    const showNombre = item.nombre && item.nombre.trim() !== '' && item.nombre !== 'Sin nombre';
+    const showDescripcion = item.descripcion && item.descripcion.trim() !== '';
+  
+    const priceAndButton = showPrecio
+      ? `<div class="price-button-container">
+          <span class="item-price ${item.subelement ? 'with-description' : ''}">
+            $${formatPrice(item.precio)}
+          </span>
           <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
-        </div>
-    `;
-
+        </div>`
+      : '';
+  
     const contenedorItems = document.createElement('span');
     contenedorItems.className = 'contenedor-items';
-
+  
     const newItem = document.createElement('div');
     newItem.className = 'menu-item';
     newItem.dataset.id = item.id;
-
+  
     newItem.innerHTML = `
-        <div class="item-header">${imgTag}</div>
-        <div class="item-content" data-aos="fade-up">
-<h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre && item.nombre !== 'Sin nombre' ? item.nombre : ''}</h3>
-            ${priceAndButton}
-            <p class="item-description">${item.descripcion}</p>
-        </div>
+      <div class="item-header">${imgTag}</div>
+      <div class="item-content" data-aos="fade-up">
+        ${showNombre ? `<h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre}</h3>` : ''}
+        ${priceAndButton}
+        ${showDescripcion ? `<p class="item-description">${item.descripcion}</p>` : ''}
+      </div>
     `;
-
+  
     const editButton = document.createElement('button');
     editButton.classList.add('edit-button', 'auth-required');
     editButton.textContent = 'Editar';
     newItem.appendChild(editButton);
-
+  
     const talleWrapper = document.createElement('div');
     talleWrapper.className = 'talle-wrapper';
-
+  
     const talleDropdown = document.createElement('select');
     talleDropdown.className = 'talle-select';
     talleDropdown.innerHTML = `<option value="" disabled selected>Talle</option>`;
-
+  
     const colorDropdown = document.createElement('select');
     colorDropdown.className = 'color-select';
     colorDropdown.innerHTML = `<option value="" disabled selected>Color</option>`;
     colorDropdown.addEventListener('mousedown', function (e) {
       if (!talleDropdown.value) {
-        e.preventDefault(); // evita que se abra el select
+        e.preventDefault();
         Swal.fire({
           icon: 'info',
           title: 'Primero elegí un talle',
@@ -751,10 +754,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     });
-
-    // Mapeo de stock para almacenar colores disponibles por talle
+  
     let stockMap = {};
-
+  
     fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${item.id}/talles`)
       .then(response => response.json())
       .then(stockData => {
@@ -768,12 +770,11 @@ document.addEventListener("DOMContentLoaded", function () {
               talleDropdown.appendChild(option);
             }
           });
-
-          // Cuando cambia el talle, actualizar los colores disponibles
+  
           talleDropdown.addEventListener('change', function () {
             const selectedTalle = talleDropdown.value;
             colorDropdown.innerHTML = `<option value="" disabled selected>Color</option>`;
-
+  
             if (stockMap[selectedTalle]) {
               stockMap[selectedTalle].forEach(({ color }) => {
                 const colorOption = document.createElement('option');
@@ -783,7 +784,7 @@ document.addEventListener("DOMContentLoaded", function () {
               });
             }
           });
-
+  
           talleWrapper.appendChild(talleDropdown);
           talleWrapper.appendChild(colorDropdown);
           newItem.querySelector('.item-content').appendChild(talleWrapper);
@@ -792,11 +793,12 @@ document.addEventListener("DOMContentLoaded", function () {
       .catch(err => {
         console.error('Error fetching stock data:', err);
       });
-
+  
     contenedorItems.appendChild(newItem);
-
+  
     return contenedorItems;
   }
+  
 
 
   // Crear el overlay si no existe
