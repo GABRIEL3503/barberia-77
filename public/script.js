@@ -2241,6 +2241,24 @@ function addNavbarLinkEvents() {
       this.classList.toggle('open', !isVisible);
     });
   });
+  // Enlace estático a RESEÑAS
+const reseñasLink = document.querySelector('.parent-link[href="#reseñas"]');
+if (reseñasLink) {
+  reseñasLink.addEventListener('click', function (e) {
+    e.preventDefault();
+    const targetSection = document.getElementById('reseñas');
+    if (!targetSection) return;
+
+    window.scrollTo({
+      top: targetSection.offsetTop - 100,
+      behavior: 'smooth'
+    });
+
+    if (navbarLinks) navbarLinks.classList.remove('active');
+    if (hamburger) hamburger.classList.remove('active');
+  });
+}
+
 }
 
 
