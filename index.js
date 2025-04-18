@@ -272,21 +272,17 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
   const { id } = req.params;
   const { nombre, precio, descripcion, tipo, stock, parent_group } = req.body;
 
-  if (!nombre || !descripcion || !tipo || !stock) {
-    return res.status(400).json({ error: "Faltan datos obligatorios (nombre, tipo, descripción o stock)." });
-  }
-  
-
   let parsedStock = [];
   try {
     parsedStock = typeof stock === "string" ? JSON.parse(stock) : stock;
-    if (!Array.isArray(parsedStock)) throw new Error("Stock debe ser un array.");
+    if (!Array.isArray(parsedStock)) parsedStock = [];
   } catch (err) {
-    return res.status(400).json({ error: "Formato inválido en el stock." });
+    parsedStock = [];
   }
 
   const rawPrecio = (precio || "").toString().replace(/\./g, "").trim();
   const precioEntero = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
+
   
   db.serialize(() => {
     db.run("BEGIN TRANSACTION");
