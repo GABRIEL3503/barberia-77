@@ -2628,3 +2628,31 @@ font-size: 2.1rem;
   opacity: 1;
   pointer-events: auto;
 }
+.wpp-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 999;
+  background-color: #25D366;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  font-family: 'Nunito', sans-serif;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: bottom 0.3s ease-in-out, transform 0.2s ease;
+  cursor: pointer;
+}
+
+.wpp-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.scroll-button.move-up {
+  bottom: 80px; /* Ajustalo si querés más separación al llegar al footer */
+}

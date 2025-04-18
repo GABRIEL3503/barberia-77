@@ -2368,6 +2368,7 @@ function handleScrollForButtons() {
     document.getElementById('cart-button'),
     document.getElementById('scrollToTopButton'),
     document.getElementById('scrollToBottomButton'),
+    document.getElementById('wpp-btn'), // ✅ AÑADIDO
   ];
   const footer = document.getElementById('footer');
   if (!footer) return;
@@ -2475,3 +2476,6 @@ async function mostrarVisitas() {
     console.error('Error al obtener visitas:', err);
   }
 }
+document.getElementById('wpp-btn').addEventListener('click', () => {
+  window.open('https://api.whatsapp.com/send?phone=5492999999999&text=Hola,%20quiero%20pedir%20mi%20turno.', '_blank');
+});
