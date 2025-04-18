@@ -2320,9 +2320,9 @@ width: auto ;}
 #scrollToBottomButtonmove-up {
   bottom: 300px; /* Ajusta esta distancia si es necesario */
 }
-.section-links {
+/* .section-links {
   display: none;
-}
+} */
 .parent-link img {
   transition: transform 0.3s ease;
 }
@@ -2607,19 +2607,14 @@ font-size: 2.1rem;
         border-radius: 18px;
         padding: 20px;
         width: 79%;      }
-      .section-links {
+      /* .section-links {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.4s ease, opacity 0.3s ease;
   opacity: 0;
   pointer-events: none;
-}
+} */
 
-.nav-group.open .section-links {
-  max-height: 500px; /* o lo que estimes necesario */
-  opacity: 1;
-  pointer-events: auto;
-}
 .section-links {
   max-height: 0;
   overflow: hidden;
