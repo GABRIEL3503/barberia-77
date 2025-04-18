@@ -2228,19 +2228,23 @@ function addNavbarLinkEvents() {
   const parentLinks = document.querySelectorAll('.navbar-links .parent-link');
   parentLinks.forEach(link => {
     link.addEventListener('click', function (e) {
+      e.preventDefault();
+  
       const groupContainer = this.closest('.nav-group');
       const sectionLinks = groupContainer?.querySelector('.section-links');
-
-      if (!sectionLinks) return; // 🚫 RESEÑAS no tiene hijos, no despliega
-
-      e.preventDefault();
-
-      const isVisible = sectionLinks.style.display === 'block';
-      sectionLinks.style.display = isVisible ? 'none' : 'block';
-
-      this.classList.toggle('open', !isVisible);
+  
+      if (!sectionLinks) return;
+  
+      const isOpen = groupContainer.classList.contains('open');
+  
+      // 🧠 Activar animación con clase 'open' en el contenedor padre
+      groupContainer.classList.toggle('open', !isOpen);
+  
+      // Girar ícono
+      this.classList.toggle('open', !isOpen);
     });
   });
+  
   // Enlace estático a RESEÑAS
 const reseñasLink = document.querySelector('.parent-link[href="#reseñas"]');
 if (reseñasLink) {
