@@ -212,8 +212,9 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
 
 function insertMenuItem(nombre, precio, descripcion, tipo, img_url, subelement, stock, parent_group, res) {
   const db = ensureDatabaseConnection();
-  const precioEntero = parseInt((precio || "0").toString().replace(/\./g, "")) || 0;
-
+  const rawPrecio = (precio || "").toString().replace(/\./g, "").trim();
+  const precioEntero = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
+  
   db.run(
     'INSERT INTO menu_items (nombre, precio, descripcion, tipo, img_url, subelement, parent_group) VALUES (?, ?, ?, ?, ?, ?, ?)',
     [nombre, precioEntero, descripcion, tipo.toUpperCase(), img_url, subelement, parent_group || 'barberia'],
@@ -284,8 +285,9 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
     return res.status(400).json({ error: "Formato inválido en el stock." });
   }
 
-  const precioEntero = parseInt((precio || "0").toString().replace(/\./g, "")) || 0;
-
+  const rawPrecio = (precio || "").toString().replace(/\./g, "").trim();
+  const precioEntero = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
+  
   db.serialize(() => {
     db.run("BEGIN TRANSACTION");
 

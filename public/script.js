@@ -1558,8 +1558,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }).then(async (result) => {
           if (result.isConfirmed) {
             const nombre = document.getElementById('swal-input1').value.trim() || 'Sin nombre';
-            const rawPrecio = document.getElementById('swal-input2').value.replace(/\./g, '');
-            const precio = rawPrecio ? parseInt(rawPrecio, 10) : 0;
+            let rawPrecio = document.getElementById('swal-input2').value.replace(/\./g, '').trim();
+            let precio = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
+            
             
             const descripcion = document.getElementById('swal-input4').value.trim();
             const tipo = document.getElementById('swal-input3').value;
