@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
           username: document.getElementById('swal-username').value.trim(),
           password: document.getElementById('swal-password').value.trim()
         };
-
+        
       }
     }).then((result) => {  // Asegúrate de que este bloque esté dentro de la llamada a Swal.fire
       if (result.isConfirmed) {
@@ -301,7 +301,7 @@ document.addEventListener("DOMContentLoaded", function () {
         containerBotones.appendChild(switchButton);
       }
     }
-
+    
     switchButton.addEventListener('click', toggleSortable);
 
     function toggleSortable() {
@@ -521,24 +521,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function renderMenuItems(menuData) {
     const container = document.querySelector('.container');
-
+  
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
     container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
-
+  
     const isAuthenticated = !!localStorage.getItem('jwt_77-prueba');
     const lastCreatedId = localStorage.getItem('lastCreatedItemId');
-
+  
     const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
       const existing = container.querySelector(`.menu-group[data-group="${group.id}"]`);
       if (existing) {
         containers[group.id] = existing;
         return containers;
       }
-
+  
       const groupContainer = document.createElement('div');
       groupContainer.className = 'menu-group';
       groupContainer.setAttribute('data-group', group.id);
-
+  
       const hasParallax = group.id === 'barberia' || group.id === 'tienda';
       const parallaxHTML = hasParallax ? `
         <div class="parallax-container">
@@ -546,7 +546,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <h3 class="parallax-text"></h3>
         </div>
       ` : '';
-
+  
       groupContainer.innerHTML = `
         <span class="group-header">
           ${parallaxHTML}
@@ -554,18 +554,18 @@ document.addEventListener("DOMContentLoaded", function () {
           <p class="group-description">${group.description}</p>
         </span>
       `;
-
+  
       container.appendChild(groupContainer);
       containers[group.id] = groupContainer;
       return containers;
     }, {});
-
+  
     const sections = {};
-
+  
     menuData.forEach(item => {
       const parentGroup = item.parent_group || 'barberia';
       const sectionKey = `${parentGroup}-${item.tipo}`;
-
+  
       if (!sections[sectionKey]) {
         const menuSection = document.createElement('div');
         menuSection.className = 'menu-section';
@@ -576,49 +576,49 @@ document.addEventListener("DOMContentLoaded", function () {
             <span>~ ${capitalizeFirstLetter(item.tipo.toLowerCase())} ~</span>
           </h2>
         `;
-
+  
         sections[sectionKey] = menuSection;
         parentContainers[parentGroup].appendChild(menuSection);
       }
-
+  
       const newItem = createMenuItem(item);
       newItem.dataset.id = item.id;
       newItem.dataset.hidden = item.hidden;
-
+  
       const menuItem = newItem.querySelector('.menu-item');
-
+  
       const buttonsContainer = document.createElement('span');
       buttonsContainer.className = 'admin-buttons-container';
-
+  
       const editButton = menuItem.querySelector('.edit-button');
       if (editButton) buttonsContainer.appendChild(editButton);
-
+  
       const hideShowButton = document.createElement('button');
       hideShowButton.className = 'hide-show-button auth-required';
       hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
       hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
       buttonsContainer.appendChild(hideShowButton);
-
+  
       menuItem.appendChild(buttonsContainer);
-
+  
       if (item.hidden) {
         newItem.style.display = isAuthenticated ? 'block' : 'none';
         newItem.style.opacity = isAuthenticated ? '0.3' : '1';
       }
-
+  
       const section = sections[sectionKey];
       const afterTitle = section.querySelector('h2.section-title')?.nextSibling;
       section.insertBefore(newItem, afterTitle || null);
     });
-
+  
     checkAuthentication();
-
+  
     const tipo = localStorage.getItem('lastCreatedItemTipo');
     const grupo = localStorage.getItem('lastCreatedItemGrupo');
-
+  
     if (tipo && grupo) {
       const targetSelector = `.menu-group[data-group="${grupo}"] .menu-section[data-type="${tipo}"]`;
-
+  
       const waitForOffset = (callback) => {
         const section = document.querySelector(targetSelector);
         if (section && section.offsetTop > 0) {
@@ -633,22 +633,22 @@ document.addEventListener("DOMContentLoaded", function () {
           requestAnimationFrame(() => waitForOffset(callback));
         }
       };
-
+  
       waitForOffset(() => {
         if (typeof AOS !== 'undefined') {
           AOS.refresh();
         }
       });
     }
-
+  
     // 🧩 Reubicar grupo estático al fondo siempre
     const staticGroup = container.querySelector('.menu-group.static-group');
     if (staticGroup) {
       container.appendChild(staticGroup);
     }
   }
-
-
+  
+  
 
 
 
@@ -696,20 +696,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function createMenuItem(item) {
     const imageUrl = item.img_url || '';
-    const imgTag = imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" onerror="this.onerror=null; this.src='';" />` : '';
+    let imgTag = imageUrl ? `<img src="${imageUrl}" alt="${item.nombre}" onerror="this.onerror=null; this.src='';" />` : '';
 
-    const showPrecio = item.precio && item.precio > 0;
-    const showNombre = item.nombre && item.nombre.trim() !== '' && item.nombre !== 'Sin nombre';
-    const showDescripcion = item.descripcion && item.descripcion.trim() !== '';
+    const priceAndButton = `
+        <div class="price-button-container">
+     <span class="item-price ${item.subelement ? 'with-description' : ''}">
+  ${item.precio > 0 ? `$${formatPrice(item.precio)}` : ''}
+</span>
 
-    const priceAndButton = showPrecio
-      ? `<div class="price-button-container">
-          <span class="item-price ${item.subelement ? 'with-description' : ''}">
-            $${formatPrice(item.precio)}
-          </span>
           <button class="add-to-cart-btn" data-id="${item.id}" data-name="${item.nombre}" data-price="${item.precio}">+</button>
-        </div>`
-      : '';
+        </div>
+    `;
 
     const contenedorItems = document.createElement('span');
     contenedorItems.className = 'contenedor-items';
@@ -719,12 +716,12 @@ document.addEventListener("DOMContentLoaded", function () {
     newItem.dataset.id = item.id;
 
     newItem.innerHTML = `
-      <div class="item-header">${imgTag}</div>
-      <div class="item-content" data-aos="fade-up">
-        ${showNombre ? `<h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre}</h3>` : ''}
-        ${priceAndButton}
-        ${showDescripcion ? `<p class="item-description">${item.descripcion}</p>` : ''}
-      </div>
+        <div class="item-header">${imgTag}</div>
+        <div class="item-content" data-aos="fade-up">
+<h3 class="item-title ${item.subelement ? 'porciones-title' : ''}">${item.nombre && item.nombre !== 'Sin nombre' ? item.nombre : ''}</h3>
+            ${priceAndButton}
+            <p class="item-description">${item.descripcion}</p>
+        </div>
     `;
 
     const editButton = document.createElement('button');
@@ -744,7 +741,7 @@ document.addEventListener("DOMContentLoaded", function () {
     colorDropdown.innerHTML = `<option value="" disabled selected>Color</option>`;
     colorDropdown.addEventListener('mousedown', function (e) {
       if (!talleDropdown.value) {
-        e.preventDefault();
+        e.preventDefault(); // evita que se abra el select
         Swal.fire({
           icon: 'info',
           title: 'Primero elegí un talle',
@@ -755,6 +752,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+    // Mapeo de stock para almacenar colores disponibles por talle
     let stockMap = {};
 
     fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${item.id}/talles`)
@@ -771,6 +769,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           });
 
+          // Cuando cambia el talle, actualizar los colores disponibles
           talleDropdown.addEventListener('change', function () {
             const selectedTalle = talleDropdown.value;
             colorDropdown.innerHTML = `<option value="" disabled selected>Color</option>`;
@@ -798,7 +797,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     return contenedorItems;
   }
-
 
 
   // Crear el overlay si no existe
@@ -1366,13 +1364,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (event.target.classList.contains('edit-button')) {
       const itemElement = event.target.closest('.menu-item');
       const itemId = itemElement.dataset.id;
-      const itemTitleElement = itemElement.querySelector('.item-title');
-      const itemTitle = itemTitleElement ? itemTitleElement.textContent.trim() : '';
-      const itemPriceElement = itemElement.querySelector('.item-price');
-      const itemPrice = itemPriceElement ? itemPriceElement.textContent.replace(/\$/g, '').trim() : '';
-
-      const itemDescriptionElement = itemElement.querySelector('.item-description');
-      const itemDescription = itemDescriptionElement ? itemDescriptionElement.textContent.trim() : '';
+      const itemTitle = itemElement.querySelector('.item-title').textContent;
+      const itemPrice = itemElement.querySelector('.item-price').textContent.substring(1);
+      const itemDescription = itemElement.querySelector('.item-description').textContent;
       const itemType = event.target.closest('.menu-section').getAttribute('data-type');
       const imgElement = itemElement.querySelector('img');
       const itemImgUrl = imgElement ? imgElement.src : '';
@@ -1566,8 +1560,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const nombre = document.getElementById('swal-input1').value.trim() || 'Sin nombre';
             let rawPrecio = document.getElementById('swal-input2').value.replace(/\./g, '').trim();
             let precio = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
-
-
+            
+            
             const descripcion = document.getElementById('swal-input4').value.trim();
             const tipo = document.getElementById('swal-input3').value;
             const parent_group = document.getElementById('swal-parent-group').value;
@@ -2236,39 +2230,39 @@ function addNavbarLinkEvents() {
   parentLinks.forEach(link => {
     link.addEventListener('click', function (e) {
       e.preventDefault();
-
+  
       const groupContainer = this.closest('.nav-group');
       const sectionLinks = groupContainer?.querySelector('.section-links');
-
+  
       if (!sectionLinks) return;
-
+  
       const isOpen = groupContainer.classList.contains('open');
-
+  
       // 🧠 Activar animación con clase 'open' en el contenedor padre
       groupContainer.classList.toggle('open', !isOpen);
-
+  
       // Girar ícono
       this.classList.toggle('open', !isOpen);
     });
   });
-
+  
   // Enlace estático a RESEÑAS
-  const reseñasLink = document.querySelector('.parent-link[href="#reseñas"]');
-  if (reseñasLink) {
-    reseñasLink.addEventListener('click', function (e) {
-      e.preventDefault();
-      const targetSection = document.getElementById('reseñas');
-      if (!targetSection) return;
+const reseñasLink = document.querySelector('.parent-link[href="#reseñas"]');
+if (reseñasLink) {
+  reseñasLink.addEventListener('click', function (e) {
+    e.preventDefault();
+    const targetSection = document.getElementById('reseñas');
+    if (!targetSection) return;
 
-      window.scrollTo({
-        top: targetSection.offsetTop - 100,
-        behavior: 'smooth'
-      });
-
-      if (navbarLinks) navbarLinks.classList.remove('active');
-      if (hamburger) hamburger.classList.remove('active');
+    window.scrollTo({
+      top: targetSection.offsetTop - 100,
+      behavior: 'smooth'
     });
-  }
+
+    if (navbarLinks) navbarLinks.classList.remove('active');
+    if (hamburger) hamburger.classList.remove('active');
+  });
+}
 
 }
 
@@ -2468,7 +2462,7 @@ async function mostrarVisitas() {
     const hoy = new Date();
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 
     const diaNombre = dias[hoy.getDay()];
     const dia = hoy.getDate().toString().padStart(2, '0');
