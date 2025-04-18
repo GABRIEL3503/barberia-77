@@ -1140,7 +1140,7 @@ footer a {
 
 .price-button-container {
   display: flex;
-  margin-top: 8px;
+  margin-top: 100px;
   align-items: center;
   justify-content: space-between;
 }
