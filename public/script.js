@@ -1578,7 +1578,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }).then(async (result) => {
           if (result.isConfirmed) {
-            const nombre = document.getElementById('swal-input1').value.trim() || 'Sin nombre';
+            const nombre = document.getElementById('swal-input1').value.trim();
             let rawPrecio = document.getElementById('swal-input2').value.replace(/\./g, '').trim();
             let precio = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
             
