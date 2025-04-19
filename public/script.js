@@ -1334,40 +1334,61 @@ document.addEventListener("DOMContentLoaded", function () {
   function updateMenuItemDOM(data) {
     const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
     if (!el) return;
-
-    el.querySelector('.item-title').textContent = data.nombre;
-    el.querySelector('.item-price').textContent = `$${formatPrice(data.precio)}`;
-    el.querySelector('.item-description').textContent = data.descripcion;
-
+  
+    const titleEl = el.querySelector('.item-title');
+    if (titleEl) titleEl.textContent = data.nombre?.trim() || '';
+  
+    const priceEl = el.querySelector('.item-price');
+    if (priceEl) priceEl.textContent = data.precio > 0 ? `$${formatPrice(data.precio)}` : '';
+  
+    const descEl = el.querySelector('.item-description');
+    if (descEl) descEl.textContent = data.descripcion?.trim() || '';
+  
+    // ✅ Opcional: ocultar botón "+" si no hay precio
+    const addBtn = el.querySelector('.add-to-cart-btn');
+    if (addBtn) {
+      if (data.precio > 0) {
+        addBtn.setAttribute('data-name', data.nombre);
+        addBtn.setAttribute('data-price', data.precio);
+        addBtn.style.display = '';
+      } else {
+        addBtn.style.display = 'none';
+      }
+    }
+  
     const img = el.querySelector('.item-header img');
     if (img && data.img_url) {
       const currentSrc = img.getAttribute('src');
       const newSrc = data.img_url;
-
-      // Verificamos si la imagen realmente cambió (por nombre o timestamp)
+  
       if (!currentSrc.endsWith(newSrc)) {
         img.classList.add('fade-transition');
         img.style.opacity = 0;
-
+  
         img.onload = () => {
           img.style.opacity = 1;
           img.classList.remove('fade-transition');
         };
-
+  
         img.setAttribute('src', newSrc);
       }
     }
   }
+  
 
 
   document.body.addEventListener('click', async function (event) {
     if (event.target.classList.contains('edit-button')) {
       const itemElement = event.target.closest('.menu-item');
       const itemId = itemElement.dataset.id;
-      const itemTitle = itemElement.querySelector('.item-title').textContent;
-      const itemPrice = itemElement.querySelector('.item-price').textContent.substring(1);
-      const itemDescription = itemElement.querySelector('.item-description').textContent;
-      const itemType = event.target.closest('.menu-section').getAttribute('data-type');
+      const itemPriceElement = itemElement.querySelector('.item-price');
+      const itemPrice = itemPriceElement ? itemPriceElement.textContent.replace(/\$/g, '').trim() : '';
+      const itemTitleElement = itemElement.querySelector('.item-title');
+      const itemTitle = itemTitleElement ? itemTitleElement.textContent.trim() : '';
+      
+      const itemDescriptionElement = itemElement.querySelector('.item-description');
+      const itemDescription = itemDescriptionElement ? itemDescriptionElement.textContent.trim() : '';
+            const itemType = event.target.closest('.menu-section').getAttribute('data-type');
       const imgElement = itemElement.querySelector('img');
       const itemImgUrl = imgElement ? imgElement.src : '';
       const currentParentGroup = event.target.closest('.menu-group').getAttribute('data-group');
