@@ -1049,10 +1049,7 @@ baseRouter.get('/monitor/memory', (req, res) => {
     totalSystemMemory: `${(totalMemory / 1024 / 1024).toFixed(2)} MB`, // Memoria total del sistema
   });
 });
-// Obtener IP del visitante
-function getClientIp(req) {
-  return req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-}
+
 
 // Obtener rangos de fecha para mes actual y anterior
 function getMonthRange(offset = 0) {
@@ -1069,29 +1066,43 @@ function getMonthRange(offset = 0) {
 }
 
 // POST /visitas
+// Extraer IP real, incluso detrás de proxy
+function getClientIp(req) {
+  const xfwd = req.headers['x-forwarded-for'];
+  return xfwd ? xfwd.split(',')[0].trim() : req.connection.remoteAddress;
+}
+
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
-  const ip = req.ip;
-  const userAgent = req.headers['user-agent'] || 'unknown';
-  const identificador = `${ip}-${userAgent}`;
-  const fecha = new Date().toISOString().split('T')[0];
-  const hora = new Date().toTimeString().split(' ')[0]; // HH:MM:SS
+
+  const ip = getClientIp(req); // ✅ IP real
+  const now = new Date();
+
+  // ⚠️ Ajusta según zona horaria local (ej: GMT-3 para Argentina)
+  now.setHours(now.getHours() - 3);
+
+  const fecha = now.toISOString().split('T')[0]; // YYYY-MM-DD
+  const hora = now.toTimeString().split(' ')[0]; // HH:MM:SS
 
   db.get(
     `SELECT 1 FROM visitas WHERE ip = ? AND fecha = ?`,
-    [identificador, fecha],
+    [ip, fecha],
     (err, row) => {
       if (err) return res.status(500).json({ error: err.message });
 
       if (!row) {
-        db.run( `INSERT INTO visitas (ip, fecha, hora) VALUES (?, ?, ?)`,
-          [identificador, fecha, hora]);
+        db.run(
+          `INSERT INTO visitas (ip, fecha, hora) VALUES (?, ?, ?)`,
+          [ip, fecha, hora],
+          () => res.json({ ok: true })
+        );
+      } else {
+        res.json({ ok: true, msg: "Ya registrado hoy." });
       }
-
-      res.json({ ok: true });
     }
   );
 });
+
 
 
 
