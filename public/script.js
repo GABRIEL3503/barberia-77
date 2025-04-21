@@ -2439,18 +2439,7 @@ function cambiarFrase() {
 
 // Inicia el carrusel de frases
 setInterval(cambiarFrase, 4000); // Tiempo total para cambiar frase (4 segundos)
-async function mostrarVisitas() {
-  try {
-    await fetch('/77-prueba/visitas', { method: 'POST' }); // ✅ importante: prefijo correcto
-    const res = await fetch('/77-prueba/visitas'); // ✅ idem
-    const data = await res.json();
 
-    document.getElementById('mes-actual').textContent = data.mes_actual;
-    document.getElementById('mes-anterior').textContent = data.mes_anterior;
-  } catch (err) {
-    console.error('Error al obtener visitas:', err);
-  }
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   const popup = document.getElementById('popup-visitas');
@@ -2487,17 +2476,17 @@ async function mostrarVisitas() {
 
     const diaNombre = dias[hoy.getDay()];
     const dia = hoy.getDate().toString().padStart(2, '0');
-    const mes = hoy.getMonth(); // 0-11
+    const mes = hoy.getMonth();
     const año = hoy.getFullYear();
 
     document.getElementById('fecha-actual').textContent = `${diaNombre} ${dia}/${mes + 1}/${año}`;
     document.getElementById('mes-actual').textContent = data.mes_actual;
     document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} vistas.`;
-
   } catch (err) {
     console.error('Error al obtener visitas:', err);
   }
 }
+
 document.getElementById('wpp-btn').addEventListener('click', () => {
   window.open('https://api.whatsapp.com/send?phone=5492999999999&text=Hola,%20quiero%20pedir%20mi%20turno.', '_blank');
 });
