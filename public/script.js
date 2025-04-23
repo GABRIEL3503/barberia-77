@@ -935,7 +935,7 @@ document.addEventListener("DOMContentLoaded", function () {
           Swal.fire('Pedido Confirmado', 'Tu pedido ha sido enviado con éxito.', 'success');
 
           // ✅ Enviar mensaje por WhatsApp
-          const whatsappNumber = "5492995951765";
+          const whatsappNumber = "2995173758";
           const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderDetails)}`;
           window.open(whatsappLink, '_blank');
 
@@ -2473,5 +2473,5 @@ async function mostrarVisitas() {
 
 
 document.getElementById('wpp-btn').addEventListener('click', () => {
-  window.open('https://api.whatsapp.com/send?phone=5492999999999&text=Hola,%20quiero%20pedir%20mi%20turno.', '_blank');
+  window.open('https://api.whatsapp.com/send?phone=2995173758&text=Hola!%20Quisiera%20reservar%20un%20turno', '_blank');
 });
