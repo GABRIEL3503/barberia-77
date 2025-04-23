@@ -86,7 +86,7 @@ function formatPrice(value) {
 }
 
 function checkAuthentication() {
-  const token = localStorage.getItem('jwt_77-prueba');
+  const token = localStorage.getItem('jwt_la-barberia-77');
   const cartButton = document.getElementById('cart-button');
   // 🔥 Ya no tocamos scrollToBottomButton
 
@@ -121,7 +121,7 @@ const mp = new MercadoPago('APP_USR-109a0809-067e-4724-b997-c0d129201788', {
 
 // Function to create payment preference and redirect to MercadoPago checkout
 function handlePayment(totalAmount) {
-  fetch('https://octopus-app.com.ar/77-prueba/create_preference', {
+  fetch('https://octopus-app.com.ar/la-barberia-77/create_preference', {
 
     // fetch('http://localhost:3001/create_preference', {
     method: 'POST',
@@ -164,7 +164,7 @@ function toggleVisibility(item, button) {
   const hidden = item.style.opacity === '0.3' ? 0 : 1;  // Determinar si está oculto o visible
 
   // Enviar el cambio al servidor
-  fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${itemId}/visibility`, {
+  fetch(`https://octopus-app.com.ar/la-barberia-77/api/menu/${itemId}/visibility`, {
 
     // fetch(`http://localhost:3001/api/menu/${itemId}/visibility`, {
     method: 'PUT',
@@ -218,7 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (result.isConfirmed) {
         // Enviar estas credenciales al servidor
 
-        fetch('https://octopus-app.com.ar/77-prueba/api/auth/login', {
+        fetch('https://octopus-app.com.ar/la-barberia-77/api/auth/login', {
           // fetch('http://localhost:3001/api/auth/login', {
           method: 'POST',
           headers: {
@@ -229,7 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
           .then(response => response.json())
           .then(data => {
             if (data.auth) {
-              localStorage.setItem('jwt_77-prueba', data.token);
+              localStorage.setItem('jwt_la-barberia-77', data.token);
               window.location.reload();  // Recargar la página
 
             } else {
@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function loadMenuItems() {
     const localVersion = localStorage.getItem('menuVersion');
     // return fetch('http://localhost:3001/api/menuVersion')
-    return fetch('https://octopus-app.com.ar/77-prueba/api/menuVersion')
+    return fetch('https://octopus-app.com.ar/la-barberia-77/api/menuVersion')
       .then(response => response.json())
       .then(serverVersionData => {
         const serverVersion = serverVersionData.version;
@@ -254,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // Si no, usa los datos almacenados localmente
           const menuData = JSON.parse(localStorage.getItem('menuData'));
           renderMenuItems(menuData);
-          const token = localStorage.getItem('jwt_77-prueba');
+          const token = localStorage.getItem('jwt_la-barberia-77');
           if (token) {
             makeMenuSortable();
           }
@@ -263,7 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
   } // Cierre de loadMenuItems()
 
   function fetchMenuDataFromServer() {
-    return fetch('https://octopus-app.com.ar/77-prueba/api/menu')
+    return fetch('https://octopus-app.com.ar/la-barberia-77/api/menu')
 
       // return fetch('http://localhost:3001/api/menu')
       .then(response => response.json())
@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem('menuData', JSON.stringify(data.data));
         localStorage.setItem('menuVersion', data.version); // Asume que el servidor envía una 'versión'
         renderMenuItems(data.data);
-        const token = localStorage.getItem('jwt_77-prueba');
+        const token = localStorage.getItem('jwt_la-barberia-77');
         if (token) {
           makeMenuSortable();
         }
@@ -418,13 +418,13 @@ document.addEventListener("DOMContentLoaded", function () {
       let bodyData = {};
 
       if (type === 'groups') {
-        apiEndpoint = `https://octopus-app.com.ar/77-prueba/api/groups/order`;
+        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/groups/order`;
         bodyData = { groups: items };
       } else if (type === 'sections') {
-        apiEndpoint = `https://octopus-app.com.ar/77-prueba/api/sections/order`;
+        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items }; // 🔹 Asegurar que la clave es "sections"
       } else if (type === 'items') {
-        apiEndpoint = `https://octopus-app.com.ar/77-prueba/api/menu/order`;
+        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
       } else {
         console.error(`Tipo inválido: ${type}. Endpoint no encontrado.`);
@@ -438,7 +438,7 @@ document.addEventListener("DOMContentLoaded", function () {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('jwt_77-prueba')}`
+          'Authorization': `Bearer ${localStorage.getItem('jwt_la-barberia-77')}`
         },
         body: JSON.stringify(bodyData) // 🔹 Asegurar que el body tiene el formato correcto
       })
@@ -468,7 +468,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     editDeliveryPriceButton.addEventListener('click', function () {
       // Obtener el precio actual desde la API
-      fetch('https://octopus-app.com.ar/77-prueba/api/delivery')
+      fetch('https://octopus-app.com.ar/la-barberia-77/api/delivery')
         // fetch('http://localhost/pedidos/api/delivery')
 
         .then(response => response.json())
@@ -491,13 +491,13 @@ document.addEventListener("DOMContentLoaded", function () {
               }
 
               // Enviar el nuevo precio al backend
-              return fetch('https://octopus-app.com.ar/77-prueba/api/delivery', {
+              return fetch('https://octopus-app.com.ar/la-barberia-77/api/delivery', {
 
                 // return fetch('http://localhost:3001/api/delivery', {
                 method: 'PUT',
                 headers: {
                   'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${localStorage.getItem('77-prueba')}`
+                  'Authorization': `Bearer ${localStorage.getItem('la-barberia-77')}`
                 },
                 body: JSON.stringify({ price: parseFloat(newPrice) })
               })
@@ -525,7 +525,7 @@ document.addEventListener("DOMContentLoaded", function () {
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
     container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
   
-    const isAuthenticated = !!localStorage.getItem('jwt_77-prueba');
+    const isAuthenticated = !!localStorage.getItem('jwt_la-barberia-77');
     const lastCreatedId = localStorage.getItem('lastCreatedItemId');
   
     const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
@@ -653,7 +653,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   function loadTallesForItem(itemId) {
-    fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${itemId}/talles`)
+    fetch(`https://octopus-app.com.ar/la-barberia-77/api/menu/${itemId}/talles`)
       .then(response => response.json())
       .then(tallesData => {
         const talleSelect = document.querySelector(`.menu-item[data-id="${itemId}"] .talle-select`);
@@ -755,7 +755,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Mapeo de stock para almacenar colores disponibles por talle
     let stockMap = {};
 
-    fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${item.id}/talles`)
+    fetch(`https://octopus-app.com.ar/la-barberia-77/api/menu/${item.id}/talles`)
       .then(response => response.json())
       .then(stockData => {
         if (stockData.data) {
@@ -917,7 +917,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     console.log("📤 Enviando orden:", orderData);
 
-    fetch('https://octopus-app.com.ar/77-prueba/api/orders', {
+    fetch('https://octopus-app.com.ar/la-barberia-77/api/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -969,7 +969,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (Object.keys(cart).length === 0) {
       cartContent = '<p>Tu carrito está vacío</p>';
     } else {
-      fetch('https://octopus-app.com.ar/77-prueba/api/delivery')
+      fetch('https://octopus-app.com.ar/la-barberia-77/api/delivery')
         .then(response => response.json())
         .then(data => {
           const deliveryPrice = data.price || 0;
@@ -1210,7 +1210,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Retornar una promesa para manejar sincronización
     return new Promise((resolve) => {
       if (isDelivery) {
-        fetch('https://octopus-app.com.ar/77-prueba/api/delivery')
+        fetch('https://octopus-app.com.ar/la-barberia-77/api/delivery')
           .then(response => response.json())
           .then(data => {
             const deliveryPrice = data.price || 0;
@@ -1395,8 +1395,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // ✅ Obtener secciones y stock actualizado desde el backend
       Promise.all([
-        fetch('https://octopus-app.com.ar/77-prueba/api/sections').then((res) => res.json()),
-        fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${itemId}`).then((res) => res.json())
+        fetch('https://octopus-app.com.ar/la-barberia-77/api/sections').then((res) => res.json()),
+        fetch(`https://octopus-app.com.ar/la-barberia-77/api/menu/${itemId}`).then((res) => res.json())
       ]).then(([sectionsData, itemData]) => {
         const sections = sectionsData.data;
         const parentGroupOptions = PARENT_GROUPS.map(
@@ -1606,7 +1606,7 @@ document.addEventListener("DOMContentLoaded", function () {
               formData.append('imagen', compressedFile);
             }
 
-            fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${itemId}`, {
+            fetch(`https://octopus-app.com.ar/la-barberia-77/api/menu/${itemId}`, {
               method: 'PUT',
               body: formData
             })
@@ -1641,7 +1641,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const stockId = li.dataset.id;
 
       if (stockId) {
-        fetch(`https://octopus-app.com.ar/77-prueba/api/stock/${stockId}`, {
+        fetch(`https://octopus-app.com.ar/la-barberia-77/api/stock/${stockId}`, {
           method: 'DELETE'
         })
           .then((response) => response.json())
@@ -1677,11 +1677,11 @@ document.addEventListener("DOMContentLoaded", function () {
   function deleteProduct(productId) {
     console.log("Ejecutando deleteProduct para ID:", productId);
 
-    fetch(`https://octopus-app.com.ar/77-prueba/api/menu/${productId}`, {
+    fetch(`https://octopus-app.com.ar/la-barberia-77/api/menu/${productId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('jwt_77-prueba')}`
+        "Authorization": `Bearer ${localStorage.getItem('jwt_la-barberia-77')}`
       }
     })
       .then(response => response.json())
@@ -1739,7 +1739,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
   document.getElementById('create-item-button').addEventListener('click', function () {
-    fetch('https://octopus-app.com.ar/77-prueba/api/sections')
+    fetch('https://octopus-app.com.ar/la-barberia-77/api/sections')
       .then(response => response.json())
       .then(data => {
         const sections = data.data;
@@ -1850,7 +1850,7 @@ document.addEventListener("DOMContentLoaded", function () {
             localStorage.setItem('lastCreatedItemGrupo', selectedParentGroup);
 
 
-            fetch('https://octopus-app.com.ar/77-prueba/api/menu', {
+            fetch('https://octopus-app.com.ar/la-barberia-77/api/menu', {
               method: 'POST',
               body: formData
             })
@@ -1966,7 +1966,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (createAnnouncementButton) {
 
     createAnnouncementButton.addEventListener('click', function () {
-      fetch('https://octopus-app.com.ar/77-prueba/api/announcements') // Solicitud GET
+      fetch('https://octopus-app.com.ar/la-barberia-77/api/announcements') // Solicitud GET
         .then(response => response.json())
         .then(data => {
           let modalTitle = 'Crear Anuncio';
@@ -2041,7 +2041,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
           }).then((result) => {
             if (result.isConfirmed) {
-              fetch('https://octopus-app.com.ar/77-prueba/api/announcements', {
+              fetch('https://octopus-app.com.ar/la-barberia-77/api/announcements', {
                 method: 'POST',
                 body: result.value, // Enviar el objeto FormData
               })
@@ -2095,7 +2095,7 @@ function showAnnouncementPopup(data) {
 
 // Función para cerrar la sesión
 function simpleLogout() {
-  localStorage.removeItem('jwt_77-prueba');
+  localStorage.removeItem('jwt_la-barberia-77');
   window.location.reload();  // Recarga la página
 }
 
@@ -2157,7 +2157,7 @@ function capitalizeFirstLetter(string) {
 }
 
 function loadMenuSections() {
-  fetch('https://octopus-app.com.ar/77-prueba/api/sections')
+  fetch('https://octopus-app.com.ar/la-barberia-77/api/sections')
     .then(response => response.json())
     .then(data => {
       const sections = data.data;
@@ -2333,7 +2333,7 @@ let announcementImage = new Image(); // Precargar la imagen
 
 
 // Precargar el anuncio antes de mostrar contenido
-fetch('https://octopus-app.com.ar/77-prueba/api/announcements')
+fetch('https://octopus-app.com.ar/la-barberia-77/api/announcements')
   .then(response => response.json())
   .then(data => {
     if (data.success && data.announcement && data.announcement.state) {
@@ -2461,8 +2461,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function mostrarVisitas() {
   try {
-    await fetch('/77-prueba/visitas', { method: 'POST' });
-    const res = await fetch('/77-prueba/visitas');
+    await fetch('/la-barberia-77/visitas', { method: 'POST' });
+    const res = await fetch('/casa-vera/visitas');
     const data = await res.json();
 
     const hoy = new Date();

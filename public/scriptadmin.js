@@ -27,7 +27,7 @@ function formatDate(date) {
 }
 
 function loadOrders() {
-    fetch('https://octopus-app.com.ar/77-prueba/api/orders')
+    fetch('https://octopus-app.com.ar/la-barberia-77/api/orders')
         .then(response => response.json())
         .then(orders => {
             const orderList = document.getElementById('orderList');
@@ -124,7 +124,7 @@ function toggleOrderStatus(orderId) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`https://octopus-app.com.ar/77-prueba/api/orders/${orderId}/status`, {
+            fetch(`https://octopus-app.com.ar/la-barberia-77/api/orders/${orderId}/status`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'

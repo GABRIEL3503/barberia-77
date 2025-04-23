@@ -34,7 +34,7 @@ const baseRouter = express.Router();
 let db = null; // Conexión global
 let lastUsedTime = Date.now();
 
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 3019;
 
 // Abrir la conexión global si no está abierta
 function ensureDatabaseConnection() {
@@ -96,7 +96,7 @@ import bcrypt from 'bcryptjs'
 
 let menuVersion = 4; // O usa un timestamp inicial
 
-const JWT_SECRET = process.env.JWT_SECRET || "clave-unica-de-esta-app-77-prueba"; 
+const JWT_SECRET = process.env.JWT_SECRET || "clave-unica-de-esta-app-la-barberia-77"; 
 
 // Hardcoded user for demonstration purposes
 const hardcodedUser = {
@@ -122,7 +122,7 @@ baseRouter.post('/api/auth/login', (req, res) => {
 
   if (usernameMatches && passwordMatches) {
     const token = jwt.sign(
-      { id: hardcodedUser.username, app: "77-prueba" },
+      { id: hardcodedUser.username, app: "la-barberia-77" },
       JWT_SECRET
     );
     console.log("🔓 Login exitoso para:", username);
@@ -464,7 +464,7 @@ baseRouter.delete('/api/menu/:id', (req, res) => {
   baseRouter.post('/api/announcements', upload.single('image'), async (req, res) => {
     const db = ensureDatabaseConnection();
     const { text, paragraph, state } = req.body;
-    const BASE_URL = 'https://octopus-app.com.ar/77-prueba';
+    const BASE_URL = 'https://octopus-app.com.ar/la-barberia-77';
 
     let newImageUrl = '';
     if (req.file) {
@@ -1135,13 +1135,13 @@ baseRouter.get('/visitas', (req, res) => {
 });
 
 
-app.use('/77-prueba', baseRouter);
+app.use('/la-barberia-77', baseRouter);
 
 // Luego sirve el contenido estático
-app.use('/77-prueba', express.static(path.join(__dirname, 'public')));
+app.use('/la-barberia-77', express.static(path.join(__dirname, 'public')));
 
 // Finalmente, para todas las demás rutas bajo '/inventario', sirve el index.html
-app.get('/77-prueba/*', (req, res) => {
+app.get('/la-barberia-77/*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
