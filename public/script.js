@@ -2445,18 +2445,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const abrir = document.getElementById('abrir-popup-visitas');
   const cerrar = document.getElementById('cerrar-popup-visitas');
 
-  // Abrir popup y cargar visitas
-  abrir.addEventListener('click', async () => {
-    await mostrarVisitas();
+  abrir.addEventListener('click', () => {
     popup.style.display = 'flex';
+    mostrarVisitas();
   });
 
-  // Cerrar popup al clickear botón "cerrar"
   cerrar.addEventListener('click', () => {
     popup.style.display = 'none';
   });
 
-  // Cerrar popup al clickear fuera del contenido
   window.addEventListener('click', (e) => {
     if (e.target === popup) popup.style.display = 'none';
   });
@@ -2464,8 +2461,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function mostrarVisitas() {
   try {
-    await fetch('/77-prueba/visitas', { method: 'POST' });
-    const res = await fetch('/77-prueba/visitas');
+    await fetch('/casa-vera/visitas', { method: 'POST' });
+    const res = await fetch('/casa-vera/visitas');
     const data = await res.json();
 
     const hoy = new Date();
@@ -2480,7 +2477,7 @@ async function mostrarVisitas() {
 
     document.getElementById('fecha-actual').textContent = `${diaNombre} ${dia}/${mes + 1}/${año}`;
     document.getElementById('mes-actual').textContent = data.mes_actual;
-    document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} vistas.`;
+    document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} visitas.`;
 
   } catch (err) {
     console.error('Error al obtener visitas:', err);
