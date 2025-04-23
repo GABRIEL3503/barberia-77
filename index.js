@@ -159,7 +159,7 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
     try {
       await sharp(req.file.buffer)
         .resize({ width: 1200, height: 1200, fit: "inside" })
-        .toFormat("webp", { quality: 85 })
+        .toFormat("webp", { quality: 90 })
         .toFile(compressedImagePath);
 
       img_url = `img/${imageFileName}`;
@@ -303,7 +303,7 @@ baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
         try {
           await sharp(req.file.buffer)
             .resize({ width: 1200, height: 1200, fit: "inside" })
-            .toFormat("webp", { quality: 85 })
+            .toFormat("webp", { quality: 90 })
             .toFile(compressedImagePath);
 
           newImgUrl = `img/${imageFileName}`;
@@ -475,7 +475,7 @@ baseRouter.delete('/api/menu/:id', (req, res) => {
             // 📌 Procesar imagen con Sharp (sin cambiar el alto)
             await sharp(req.file.buffer)
                 .resize({ width: 800 })  // 🔹 Solo ajustamos el ancho, el alto se mantiene proporcional
-                .toFormat('webp', { quality: 70 })  // 🔹 Convertimos a WEBP con calidad 70%
+                .toFormat('webp', { quality: 90 })  // 🔹 Convertimos a WEBP con calidad 70%
                 .toFile(compressedImagePath);
 
             newImageUrl = `${BASE_URL}/img/${imageFileName}`;
