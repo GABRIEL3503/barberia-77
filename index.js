@@ -1074,46 +1074,30 @@ function getClientIp(req) {
 
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
-  const ip = getClientIp(req);
+  const ip = req.ip;
+  const userAgent = req.headers['user-agent'] || 'unknown';
+  const identificador = `${ip}-${userAgent}`;
   const now = new Date();
-
-  now.setHours(now.getHours() - 3); // zona horaria (ej: GMT-3)
-  const fecha = now.toISOString().split('T')[0];
-  const hora = now.toTimeString().split(' ')[0];
-
-  console.log(`[Fecha actual]: ${fecha} | [Hora]: ${hora}`);
+  const fecha = now.toISOString().split('T')[0]; // YYYY-MM-DD
+  const hora = now.toTimeString().split(' ')[0]; // HH:MM:SS
 
   db.get(
     `SELECT 1 FROM visitas WHERE ip = ? AND fecha = ?`,
-    [ip, fecha],
+    [identificador, fecha],
     (err, row) => {
-      if (err) {
-        console.error(`[ERROR SELECT]:`, err);
-        return res.status(500).json({ error: err.message });
-      }
+      if (err) return res.status(500).json({ error: err.message });
 
       if (!row) {
         db.run(
           `INSERT INTO visitas (ip, fecha, hora) VALUES (?, ?, ?)`,
-          [ip, fecha, hora],
-          (insertErr) => {
-            if (insertErr) {
-              console.error(`[ERROR INSERT]:`, insertErr);
-              return res.status(500).json({ error: insertErr.message });
-            }
-
-            console.log(`[INSERTADA]: IP=${ip} Fecha=${fecha}`);
-            res.json({ ok: true, nueva: true });
-          }
+          [identificador, fecha, hora]
         );
-      } else {
-        console.log(`[DUPLICADA]: Ya contada IP=${ip} Fecha=${fecha}`);
-        res.json({ ok: true, nueva: false });
       }
+
+      res.json({ ok: true });
     }
   );
 });
-
 
 
 
@@ -1125,15 +1109,13 @@ baseRouter.get('/visitas', (req, res) => {
   const prev = getMonthRange(-1);
 
   const contar = (range, cb) => {
-    db.all(
-      `SELECT COUNT(*) as total FROM (
-  SELECT ip, fecha FROM visitas WHERE fecha BETWEEN ? AND ? GROUP BY ip, fecha
-)
-`,
+    db.get(
+      `SELECT COUNT(DISTINCT ip) as total FROM visitas WHERE fecha BETWEEN ? AND ?`,
       [range.start, range.end],
-      (err, rows) => cb(err, rows.length)
+      (err, row) => cb(err, row?.total || 0)
     );
   };
+  
 
   contar(current, (err1, actual) => {
     if (err1) return res.status(500).json({ error: err1.message });
