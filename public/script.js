@@ -1824,10 +1824,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const fileInput = document.getElementById('swal-file-upload');
             if (fileInput.files[0]) {
-              const compressedImage = await compressImage(fileInput.files[0], 0.85, 800, 600);
+              const compressedImage = await compressImage(fileInput.files[0], 0.9, 1200, 1200); // Aumentar calidad y resolución
               const compressedFile = new File([compressedImage], 'imagen.webp', { type: 'image/webp' });
               formData.append('imagen', compressedFile);
             }
+            
 
             const stock = Array.from(document.querySelectorAll('#stock-list li')).map(li => ({
               talle: li.dataset.talle,
