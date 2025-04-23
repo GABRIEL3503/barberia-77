@@ -2445,30 +2445,48 @@ document.addEventListener('DOMContentLoaded', () => {
   const abrir = document.getElementById('abrir-popup-visitas');
   const cerrar = document.getElementById('cerrar-popup-visitas');
 
-  abrir.addEventListener('click', () => {
+  // Abrir popup y cargar visitas
+  abrir.addEventListener('click', async () => {
+    await mostrarVisitas();
     popup.style.display = 'flex';
-    mostrarVisitas();
   });
 
+  // Cerrar popup al clickear botón "cerrar"
   cerrar.addEventListener('click', () => {
     popup.style.display = 'none';
   });
 
+  // Cerrar popup al clickear fuera del contenido
   window.addEventListener('click', (e) => {
     if (e.target === popup) popup.style.display = 'none';
   });
 });
+
 async function mostrarVisitas() {
   try {
-    await fetch('/casa-vera/visitas', { method: 'POST' });
-    const res = await fetch('/casa-vera/visitas');
+    await fetch('/77-prueba/visitas', { method: 'POST' });
+    const res = await fetch('/77-prueba/visitas');
     const data = await res.json();
+
+    const hoy = new Date();
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
+    const diaNombre = dias[hoy.getDay()];
+    const dia = hoy.getDate().toString().padStart(2, '0');
+    const mes = hoy.getMonth(); // 0-11
+    const año = hoy.getFullYear();
+
+    document.getElementById('fecha-actual').textContent = `${diaNombre} ${dia}/${mes + 1}/${año}`;
     document.getElementById('mes-actual').textContent = data.mes_actual;
-    document.getElementById('mes-anterior').textContent = data.mes_anterior;
+    document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} vistas.`;
+
   } catch (err) {
     console.error('Error al obtener visitas:', err);
   }
 }
+
 
 
 
