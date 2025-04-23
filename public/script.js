@@ -1824,7 +1824,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const fileInput = document.getElementById('swal-file-upload');
             if (fileInput.files[0]) {
-              const compressedImage = await compressImage(imageInput.files[0], 0.85, 800, 600);
+              const compressedImage = await compressImage(fileInput.files[0], 0.85, 800, 600);
               const compressedFile = new File([compressedImage], 'imagen.webp', { type: 'image/webp' });
               formData.append('imagen', compressedFile);
             }
