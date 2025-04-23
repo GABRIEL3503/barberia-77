@@ -158,8 +158,8 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
 
     try {
       await sharp(req.file.buffer)
-        .resize({ width: 1600, height: 1600, fit: "inside" })
-        .toFormat("webp", { quality: 95 })
+        // .resize({ width: 1600, height: 1600, fit: "inside" })
+        .toFormat("webp", { quality: 100 })
         .toFile(compressedImagePath);
 
       img_url = `img/${imageFileName}`;
