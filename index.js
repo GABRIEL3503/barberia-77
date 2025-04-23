@@ -136,7 +136,6 @@ baseRouter.post('/api/auth/login', (req, res) => {
 
 // CRUD Endpoints
 
-
 baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
   const db = ensureDatabaseConnection();
   const { nombre, precio, descripcion, tipo, newSectionName, stock, parent_group } = req.body;
@@ -157,9 +156,10 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
     const compressedImagePath = path.join(__dirname, 'public/img/', imageFileName);
 
     try {
+      // Aquí aplicamos el mismo proceso de compresión que en la edición
       await sharp(req.file.buffer)
-        // .resize({ width: 1600, height: 1600, fit: "inside" })
-        .toFormat("webp", { quality: 100 })
+        .resize({ width: 1600, height: 1600, fit: "inside" })  // Asegúrate de que no se redimensione innecesariamente
+        .toFormat("webp", { quality: 95 })  // Usar calidad 95 para evitar pérdida de calidad
         .toFile(compressedImagePath);
 
       img_url = `img/${imageFileName}`;
