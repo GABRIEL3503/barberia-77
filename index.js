@@ -616,7 +616,6 @@ baseRouter.get('/api/sections', (req, res) => {
           res.status(500).json({ error: err.message });
           return;
       }
-      console.log("🔄 Secciones enviadas al frontend:", rows); // Debugging
       res.json({ data: rows });
   });
 });
@@ -1049,6 +1048,7 @@ baseRouter.get('/monitor/memory', (req, res) => {
     totalSystemMemory: `${(totalMemory / 1024 / 1024).toFixed(2)} MB`, // Memoria total del sistema
   });
 });
+// Obtener IP del visitante
 
 
 // Obtener rangos de fecha para mes actual y anterior
@@ -1065,44 +1065,54 @@ function getMonthRange(offset = 0) {
   };
 }
 
-// POST /visitas
-// Extraer IP real, incluso detrás de proxy
 function getClientIp(req) {
   const xfwd = req.headers['x-forwarded-for'];
-  return xfwd ? xfwd.split(',')[0].trim() : req.connection.remoteAddress;
+  const ip = xfwd ? xfwd.split(',')[0].trim() : req.connection.remoteAddress;
+  console.log(`[IP Detectada]: ${ip}`);
+  return ip;
 }
 
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
-
-  const ip = getClientIp(req); // ✅ IP real
+  const ip = getClientIp(req);
   const now = new Date();
 
-  // ⚠️ Ajusta según zona horaria local (ej: GMT-3 para Argentina)
-  now.setHours(now.getHours() - 3);
+  now.setHours(now.getHours() - 3); // zona horaria (ej: GMT-3)
+  const fecha = now.toISOString().split('T')[0];
+  const hora = now.toTimeString().split(' ')[0];
 
-  const fecha = now.toISOString().split('T')[0]; // YYYY-MM-DD
-  const hora = now.toTimeString().split(' ')[0]; // HH:MM:SS
+  console.log(`[Fecha actual]: ${fecha} | [Hora]: ${hora}`);
 
   db.get(
     `SELECT 1 FROM visitas WHERE ip = ? AND fecha = ?`,
     [ip, fecha],
     (err, row) => {
-      if (err) return res.status(500).json({ error: err.message });
+      if (err) {
+        console.error(`[ERROR SELECT]:`, err);
+        return res.status(500).json({ error: err.message });
+      }
 
       if (!row) {
         db.run(
           `INSERT INTO visitas (ip, fecha, hora) VALUES (?, ?, ?)`,
           [ip, fecha, hora],
-          () => res.json({ ok: true })
+          (insertErr) => {
+            if (insertErr) {
+              console.error(`[ERROR INSERT]:`, insertErr);
+              return res.status(500).json({ error: insertErr.message });
+            }
+
+            console.log(`[INSERTADA]: IP=${ip} Fecha=${fecha}`);
+            res.json({ ok: true, nueva: true });
+          }
         );
       } else {
-        res.json({ ok: true, msg: "Ya registrado hoy." });
+        console.log(`[DUPLICADA]: Ya contada IP=${ip} Fecha=${fecha}`);
+        res.json({ ok: true, nueva: false });
       }
     }
   );
 });
-
 
 
 
