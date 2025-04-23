@@ -2461,8 +2461,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function mostrarVisitas() {
   try {
-    await fetch('/casa-vera/visitas', { method: 'POST' });
-    const res = await fetch('/casa-vera/visitas');
+    await fetch('/77-prueba/visitas', { method: 'POST' });
+    const res = await fetch('/77-prueba/visitas');
     const data = await res.json();
 
     const hoy = new Date();
