@@ -156,10 +156,9 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
     const compressedImagePath = path.join(__dirname, 'public/img/', imageFileName);
 
     try {
-      // Aquí aplicamos el mismo proceso de compresión que en la edición
       await sharp(req.file.buffer)
-        .resize({ width: 1600, height: 1600, fit: "inside" })  // Asegúrate de que no se redimensione innecesariamente
-        .toFormat("webp", { quality: 95 })  // Usar calidad 95 para evitar pérdida de calidad
+        .resize({ width: 1600, height: 1600, fit: "inside" })  // Aseguramos un tamaño más grande, igual que en la edición
+        .toFormat("webp", { quality: 95 })  // Mantener alta calidad en la compresión
         .toFile(compressedImagePath);
 
       img_url = `img/${imageFileName}`;
@@ -168,7 +167,7 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
     }
   }
 
-  // ✅ Manejo de nuevas secciones en el menú
+  // Manejo de nuevas secciones
   if (tipo === 'new-section' && newSectionName) {
     const upperNewSectionName = newSectionName.trim().toUpperCase();
     db.get('SELECT id FROM menu_sections WHERE UPPER(TRIM(nombre)) = ? AND parent_group = ?', 
@@ -177,36 +176,34 @@ baseRouter.post('/api/menu', upload.single('imagen'), async (req, res) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-      
+
       if (row) {
-        // 🚨 La sección ya existe en este grupo
         return res.status(400).json({ error: `La sección "${newSectionName}" ya existe en "${parent_group}".` });
       } 
 
-      // 📌 Obtener la próxima posición dentro del `parent_group`
       db.get('SELECT COALESCE(MAX(position), 0) + 1 AS nextPosition FROM menu_sections WHERE parent_group = ?', 
              [parent_group], 
              (err, row) => {
+        if (err) {
+            return res.status(500).json({ error: err.message });
+        }
+
+        db.run('INSERT INTO menu_sections (nombre, position, parent_group) VALUES (?, ?, ?)', 
+               [upperNewSectionName, row.nextPosition, parent_group], 
+               function (err) {
           if (err) {
               return res.status(500).json({ error: err.message });
           }
-
-          // 📌 Insertar la nueva sección
-          db.run('INSERT INTO menu_sections (nombre, position, parent_group) VALUES (?, ?, ?)', 
-                 [upperNewSectionName, row.nextPosition, parent_group], 
-                 function (err) {
-              if (err) {
-                  return res.status(500).json({ error: err.message });
-              }
-              const newSectionId = this.lastID;
-              insertMenuItem(nombre, precio, descripcion, upperNewSectionName, img_url, subelement, parsedStock, parent_group, res);
-          });
+          const newSectionId = this.lastID;
+          insertMenuItem(nombre, precio, descripcion, upperNewSectionName, img_url, subelement, parsedStock, parent_group, res);
+        });
       });
     });
   } else {
     insertMenuItem(nombre, precio, descripcion, tipo.toUpperCase(), img_url, subelement, parsedStock, parent_group, res);
   }
 });
+
 
 
 
