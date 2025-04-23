@@ -1110,9 +1110,8 @@ baseRouter.get('/visitas', (req, res) => {
 
   const contar = (range, cb) => {
     db.get(
-      `SELECT COUNT(DISTINCT substr(ip, 1, instr(ip, '-') - 1)) as total
-FROM visitas
-WHERE fecha BETWEEN ? AND ?
+      `SELECT COUNT(DISTINCT ip) as total
+
 `,
       [range.start, range.end],
       (err, row) => cb(err, row?.total || 0)
