@@ -94,7 +94,7 @@ ensureDatabaseConnection();
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 
-let menuVersion = 2; // O usa un timestamp inicial
+let menuVersion = 4; // O usa un timestamp inicial
 
 const JWT_SECRET = process.env.JWT_SECRET || "clave-unica-de-esta-app-77-prueba"; 
 
