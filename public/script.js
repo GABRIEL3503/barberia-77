@@ -2445,9 +2445,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const abrir = document.getElementById('abrir-popup-visitas');
   const cerrar = document.getElementById('cerrar-popup-visitas');
 
-  abrir.addEventListener('click', () => {
-    popup.style.display = 'flex';
-    mostrarVisitas();
+  abrir.addEventListener('click', async () => {
+    await mostrarVisitas();             // primero traemos los datos
+    popup.style.display = 'flex';       // luego mostramos el popup
   });
 
   cerrar.addEventListener('click', () => {
@@ -2472,7 +2472,7 @@ async function mostrarVisitas() {
 
     const diaNombre = dias[hoy.getDay()];
     const dia = hoy.getDate().toString().padStart(2, '0');
-    const mes = hoy.getMonth(); // 0-11
+    const mes = hoy.getMonth();
     const año = hoy.getFullYear();
 
     document.getElementById('fecha-actual').textContent = `${diaNombre} ${dia}/${mes + 1}/${año}`;
