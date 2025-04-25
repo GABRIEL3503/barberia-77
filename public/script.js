@@ -419,7 +419,6 @@ document.addEventListener("DOMContentLoaded", function () {
         position: index
       }));
     
-      // 🔴 Resaltar elementos inválidos
       const invalidItems = rawItems.filter(item => !Number.isInteger(item.id));
       invalidItems.forEach(({ element }) => {
         element.style.border = '2px solid red';
@@ -462,20 +461,21 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         body: JSON.stringify(bodyData)
       })
-        .then(async response => {
-          const text = await response.text();
-          if (!response.ok) {
-            console.error(`[fetch] Error completo: Status: ${response.status}, Response: ${text}`);
-            throw new Error(`HTTP ${response.status}: ${text}`);
-          }
-          console.log("[fetch] Respuesta OK:", text);
-          return JSON.parse(text);
-        })
-        .then(data => console.log(`${type.charAt(0).toUpperCase() + type.slice(1)} ordenado correctamente`, data))
-        .catch(error => {
-          console.error(`Error al ordenar ${type}:`, error);
-        });
+      .then(async response => {
+        const text = await response.text();
+        if (!response.ok) {
+          console.error(`[fetch] Error completo: Status: ${response.status}, Response: ${text}`);
+          throw new Error(`HTTP ${response.status}: ${text}`);
+        }
+        console.log("[fetch] Respuesta OK:", text);
+        return JSON.parse(text);
+      })
+      .then(data => console.log(`${type.charAt(0).toUpperCase() + type.slice(1)} ordenado correctamente`, data))
+      .catch(error => {
+        console.error(`Error al ordenar ${type}:`, error);
+      });
     }
+    
     
     
 
