@@ -407,31 +407,39 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!sortableEnabled) return;
     
       let rawItems = Array.from(element.children)
-      .filter(item => item.classList.contains('menu-item')) // 🔥 Filtrar solo productos
-      .map((item) => ({
-        id: Number(item.dataset.id),
-        element: item
+        .filter(item => item.classList.contains('menu-item'))
+        .map((item) => ({
+          id: Number(item.dataset.id),
+          element: item
+        }));
+    
+      const validItems = rawItems.filter(item => Number.isInteger(item.id));
+      let items = validItems.map((item, index) => ({
+        id: item.id,
+        position: index
       }));
     
-    const validItems = rawItems.filter(item => Number.isInteger(item.id));
-    
-    // 🔥 Asignar posición desde 0 sólo a los válidos
-    let items = validItems.map((item, index) => ({
-      id: item.id,
-      position: index
-    }));
-    
+      // Validación visual
+      const invalidItems = rawItems.filter(item => !Number.isInteger(item.id));
+      invalidItems.forEach(({ element }) => {
+        element.style.border = '2px solid red';
+        element.title = 'ID inválido';
+      });
     
       console.log("[handleOnEnd] Tipo:", type);
-      console.table(items); // 🔥
+      console.table(items);
     
+      if (items.length === 0) {
+        console.warn(`[handleOnEnd] No se encontraron items válidos para ${type}.`);
+        return;
+      }
     
       let apiEndpoint = '';
       let bodyData = {};
     
       if (type === 'groups') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/groups/order`;
-        bodyData = { groups: items }; // 🔥 CORREGIDO
+        bodyData = { groups: items };
       } else if (type === 'sections') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items };
@@ -468,6 +476,7 @@ document.addEventListener("DOMContentLoaded", function () {
           console.error(`Error al ordenar ${type}:`, error);
         });
     }
+    
     
 
 
