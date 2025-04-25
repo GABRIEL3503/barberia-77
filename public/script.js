@@ -403,11 +403,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function handleOnEnd(_evt, element, type) {
+    function handleOnEnd(evt, container, type) {
       if (!sortableEnabled) return;
     
-      let rawItems = Array.from(element.querySelectorAll('.menu-item'))
-        .filter(item => item.dataset.subelement !== "0") // 🔥 SOLO los que subelement !== "0"
+      let selector = '.menu-item';
+      if (type === 'item') {
+        selector = ':scope > .contenedor-items > .menu-item'; 
+        // 🔥 🔥 SOLO los items hijos directos (no nietos)
+      }
+    
+      let rawItems = Array.from(container.querySelectorAll(selector))
+        .filter(item => item.dataset.subelement !== "0")
         .map(item => ({
           id: Number(item.dataset.id),
           element: item
@@ -424,9 +430,6 @@ document.addEventListener("DOMContentLoaded", function () {
         element.style.border = '2px solid red';
         element.title = 'ID inválido';
       });
-    
-      console.log("[handleOnEnd] Tipo:", type);
-      console.table(items);
     
       if (items.length === 0) {
         console.warn(`[handleOnEnd] No se encontraron items válidos para ${type}.`);
@@ -450,8 +453,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
     
-      console.log("[handleOnEnd] API Endpoint:", apiEndpoint);
-      console.log("[handleOnEnd] BodyData final:", JSON.stringify(bodyData));
+      console.log("[handleOnEnd] Enviando a API:", bodyData);
     
       fetch(apiEndpoint, {
         method: 'PUT',
@@ -464,10 +466,8 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(async response => {
         const text = await response.text();
         if (!response.ok) {
-          console.error(`[fetch] Error completo: Status: ${response.status}, Response: ${text}`);
           throw new Error(`HTTP ${response.status}: ${text}`);
         }
-        console.log("[fetch] Respuesta OK:", text);
         return JSON.parse(text);
       })
       .then(data => console.log(`${type.charAt(0).toUpperCase() + type.slice(1)} ordenado correctamente`, data))
