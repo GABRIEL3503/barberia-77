@@ -396,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 evt.preventDefault();
               }
             },
-            onEnd: evt => handleOnEnd(evt, menuSection, 'items')
+            onEnd: evt => handleOnEnd(evt, menuSection, 'item')
           });
         }
       });
@@ -423,7 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
       } else if (type === 'sections') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items }; // 🔹 Asegurar que la clave es "sections"
-      } else if (type === 'items') {
+      } else if (type === 'item') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
       } else {
