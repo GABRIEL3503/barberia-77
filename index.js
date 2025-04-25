@@ -579,22 +579,49 @@ baseRouter.put('/api/sections/order', (req, res) => {
 
 
 baseRouter.put('/api/menu/order', (req, res) => {
-  const db = ensureDatabaseConnection(); // Garantizar la conexión
+  const db = ensureDatabaseConnection();
+  const items = req.body.items;
 
-  const items = req.body.items; // Array de objetos con {id, position}
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: "Se esperaba un array 'items'." });
+  }
 
   db.serialize(() => {
     db.run('BEGIN TRANSACTION');
+
     const stmt = db.prepare('UPDATE menu_items SET position = ? WHERE id = ?');
+
+    let notFoundItems = [];
+
     items.forEach(item => {
-      stmt.run(item.position, item.id);
+      stmt.run(item.position, item.id, function (err) {
+        if (err) {
+          console.error(`❌ Error al actualizar ID ${item.id}:`, err);
+        } else if (this.changes === 0) {
+          console.warn(`⚠️ Producto no encontrado: ID ${item.id}`);
+          notFoundItems.push(item.id);
+        } else {
+          console.log(`✅ Producto actualizado: ID ${item.id}, posición ${item.position}`);
+        }
+      });
     });
+
     stmt.finalize();
+
     db.run('COMMIT', err => {
       if (err) {
-        console.error("Error al ejecutar la transacción:", err);
+        console.error("❌ Error en la transacción:", err);
         return res.status(500).json({ error: err.message });
       }
+
+      if (notFoundItems.length > 0) {
+        console.error("❌ Algunos productos no encontrados:", notFoundItems);
+        return res.status(404).json({
+          error: "Algunos productos no fueron encontrados.",
+          missing: notFoundItems
+        });
+      }
+
       res.json({ success: true });
     });
   });
