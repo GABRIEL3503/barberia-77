@@ -406,18 +406,21 @@ document.addEventListener("DOMContentLoaded", function () {
     function handleOnEnd(evt, element, type) {
       if (!sortableEnabled) return;
     
-      let rawItems = Array.from(element.children).map((item) => ({
+      let rawItems = Array.from(element.children)
+      .filter(item => item.classList.contains('menu-item')) // 🔥 Filtrar solo productos
+      .map((item) => ({
         id: Number(item.dataset.id),
         element: item
       }));
-      
-      const validItems = rawItems.filter(item => Number.isInteger(item.id));
-      
-      // 🔥 Asignar posición desde 0 sólo a los válidos
-      let items = validItems.map((item, index) => ({
-        id: item.id,
-        position: index
-      }));
+    
+    const validItems = rawItems.filter(item => Number.isInteger(item.id));
+    
+    // 🔥 Asignar posición desde 0 sólo a los válidos
+    let items = validItems.map((item, index) => ({
+      id: item.id,
+      position: index
+    }));
+    
     
       console.log("[handleOnEnd] Tipo:", type);
       console.table(items); // 🔥
