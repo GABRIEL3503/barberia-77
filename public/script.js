@@ -405,57 +405,60 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function handleOnEnd(evt, element, type) {
       if (!sortableEnabled) return;
-
+    
       let items = Array.from(element.children).map((item, index) => ({
         id: Number(item.dataset.id), // 🔥 Forzar número
         position: index
       }));
+    
       console.log("[handleOnEnd] Tipo:", type);
       console.log("[handleOnEnd] Items a enviar:", items);
-      // 🔹 Filtrar elementos sin id válido (null, undefined o vacío)
-      items = items.filter(item => item.id && item.id !== "null");
-
+    
+      items = items.filter(item => Number.isInteger(item.id));
+    
       let apiEndpoint = '';
       let bodyData = {};
-
+    
       if (type === 'groups') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/groups/order`;
-        bodyData = { items };
+        bodyData = { groups: items }; // 🔥 CORREGIDO
       } else if (type === 'sections') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
-        bodyData = { sections: items }; // 🔹 Asegurar que la clave es "sections"
+        bodyData = { sections: items };
       } else if (type === 'item') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
       } else {
-        console.error(`Tipo inválido: ${type}. Endpoint no encontrado.`);
+        console.error(`[handleOnEnd] Tipo inválido: ${type}.`);
         return;
       }
-
-      // 🔍 REGISTRO PARA DEPURACIÓN
-      console.log("Enviando a API (corregido):", JSON.stringify(bodyData)); // 🔹 Verifica la nueva salida
-
+    
+      console.log("[handleOnEnd] API Endpoint:", apiEndpoint);
+      console.log("[handleOnEnd] BodyData final:", JSON.stringify(bodyData));
+    
       fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('jwt_la-barberia-77')}`
         },
-        body: JSON.stringify(bodyData) // 🔹 Asegurar que el body tiene el formato correcto
+        body: JSON.stringify(bodyData)
       })
-        .then(response => {
+        .then(async response => {
+          const text = await response.text();
           if (!response.ok) {
-            return response.text().then(text => {
-              throw new Error(`HTTP ${response.status}: ${text}`);
-            });
+            console.error(`[fetch] Error completo: Status: ${response.status}, Response: ${text}`);
+            throw new Error(`HTTP ${response.status}: ${text}`);
           }
-          return response.json();
+          console.log("[fetch] Respuesta OK:", text);
+          return JSON.parse(text);
         })
-        .then(data => console.log(`${type.charAt(0).toUpperCase() + type.slice(1)} ordenado correctamente`))
+        .then(data => console.log(`${type.charAt(0).toUpperCase() + type.slice(1)} ordenado correctamente`, data))
         .catch(error => {
           console.error(`Error al ordenar ${type}:`, error);
         });
     }
+    
 
 
   }
