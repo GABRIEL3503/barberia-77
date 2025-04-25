@@ -403,11 +403,11 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function handleOnEnd(evt, element, type) {
+    function handleOnEnd(_evt, element, type) {
       if (!sortableEnabled) return;
     
-      let rawItems = Array.from(element.children)
-        .filter(item => item.classList.contains('menu-item'))
+      // ✅ Buscar .menu-item aunque estén anidados
+      let rawItems = Array.from(element.querySelectorAll('.menu-item'))
         .map((item) => ({
           id: Number(item.dataset.id),
           element: item
@@ -419,7 +419,7 @@ document.addEventListener("DOMContentLoaded", function () {
         position: index
       }));
     
-      // Validación visual
+      // 🔴 Resaltar elementos inválidos
       const invalidItems = rawItems.filter(item => !Number.isInteger(item.id));
       invalidItems.forEach(({ element }) => {
         element.style.border = '2px solid red';
