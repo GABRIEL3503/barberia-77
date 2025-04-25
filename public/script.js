@@ -412,7 +412,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }));
     
       console.log("[handleOnEnd] Tipo:", type);
-      console.log("[handleOnEnd] Items a enviar:", items);
+      console.table(items); // 🔥
     
       items = items.filter(item => Number.isInteger(item.id));
     
