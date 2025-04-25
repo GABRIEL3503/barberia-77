@@ -588,44 +588,44 @@ baseRouter.put('/api/menu/order', (req, res) => {
 
   db.serialize(() => {
     db.run('BEGIN TRANSACTION');
-
     const stmt = db.prepare('UPDATE menu_items SET position = ? WHERE id = ?');
 
     let notFoundItems = [];
 
+    let pending = items.length; // 🔥 Para saber cuándo terminar
+
     items.forEach(item => {
-      stmt.run(item.position, item.id, function (err) {
+      stmt.run(item.position, item.id, function(err) {
         if (err) {
-          console.error(`❌ Error al actualizar ID ${item.id}:`, err);
+          console.error(`❌ Error al actualizar item ${item.id}:`, err);
         } else if (this.changes === 0) {
-          console.warn(`⚠️ Producto no encontrado: ID ${item.id}`);
+          console.warn(`⚠️ No se encontró el producto con id ${item.id}`);
           notFoundItems.push(item.id);
-        } else {
-          console.log(`✅ Producto actualizado: ID ${item.id}, posición ${item.position}`);
+        }
+        pending--;
+        if (pending === 0) { // Último item
+          stmt.finalize();
+          db.run('COMMIT', err => {
+            if (err) {
+              console.error("❌ Error en commit:", err);
+              return res.status(500).json({ error: err.message });
+            }
+            if (notFoundItems.length > 0) {
+              console.error("❌ Productos no encontrados:", notFoundItems);
+              return res.status(404).json({ 
+                error: "Algunos productos no fueron encontrados.",
+                missing: notFoundItems
+              });
+            }
+            console.log("✅ Todos los productos actualizados correctamente.");
+            res.json({ success: true });
+          });
         }
       });
     });
-
-    stmt.finalize();
-
-    db.run('COMMIT', err => {
-      if (err) {
-        console.error("❌ Error en la transacción:", err);
-        return res.status(500).json({ error: err.message });
-      }
-
-      if (notFoundItems.length > 0) {
-        console.error("❌ Algunos productos no encontrados:", notFoundItems);
-        return res.status(404).json({
-          error: "Algunos productos no fueron encontrados.",
-          missing: notFoundItems
-        });
-      }
-
-      res.json({ success: true });
-    });
   });
 });
+
 
 
 
