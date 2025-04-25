@@ -406,9 +406,9 @@ document.addEventListener("DOMContentLoaded", function () {
     function handleOnEnd(_evt, element, type) {
       if (!sortableEnabled) return;
     
-      // ✅ Buscar .menu-item aunque estén anidados
       let rawItems = Array.from(element.querySelectorAll('.menu-item'))
-        .map((item) => ({
+        .filter(item => item.dataset.subelement !== "0") // 🔥 SOLO los que subelement !== "0"
+        .map(item => ({
           id: Number(item.dataset.id),
           element: item
         }));
