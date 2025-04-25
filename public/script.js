@@ -406,8 +406,16 @@ document.addEventListener("DOMContentLoaded", function () {
     function handleOnEnd(evt, element, type) {
       if (!sortableEnabled) return;
     
-      let items = Array.from(element.children).map((item, index) => ({
-        id: Number(item.dataset.id), // 🔥 Forzar número
+      let rawItems = Array.from(element.children).map((item) => ({
+        id: Number(item.dataset.id),
+        element: item
+      }));
+      
+      const validItems = rawItems.filter(item => Number.isInteger(item.id));
+      
+      // 🔥 Asignar position desde cero solo a los válidos
+      const items = validItems.map((item, index) => ({
+        id: item.id,
         position: index
       }));
     
