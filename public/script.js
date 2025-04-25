@@ -407,7 +407,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!sortableEnabled) return;
 
       let items = Array.from(element.children).map((item, index) => ({
-        id: item.dataset.id ? item.dataset.id.trim() : null, // 🔹 Asegurar que id es válido
+        id: Number(item.dataset.id), // 🔥 Forzar número
         position: index
       }));
 
