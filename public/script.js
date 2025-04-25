@@ -410,7 +410,8 @@ document.addEventListener("DOMContentLoaded", function () {
         id: Number(item.dataset.id), // 🔥 Forzar número
         position: index
       }));
-
+      console.log("[handleOnEnd] Tipo:", type);
+      console.log("[handleOnEnd] Items a enviar:", items);
       // 🔹 Filtrar elementos sin id válido (null, undefined o vacío)
       items = items.filter(item => item.id && item.id !== "null");
 
@@ -419,7 +420,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (type === 'groups') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/groups/order`;
-        bodyData = { groups: items };
+        bodyData = { items };
       } else if (type === 'sections') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items }; // 🔹 Asegurar que la clave es "sections"
