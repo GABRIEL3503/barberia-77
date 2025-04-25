@@ -413,8 +413,8 @@ document.addEventListener("DOMContentLoaded", function () {
       
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       
-      // 🔥 Asignar position desde cero solo a los válidos
-      const items = validItems.map((item, index) => ({
+      // 🔥 Asignar posición desde 0 sólo a los válidos
+      let items = validItems.map((item, index) => ({
         id: item.id,
         position: index
       }));
