@@ -396,7 +396,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 evt.preventDefault();
               }
             },
-            onEnd: evt => handleOnEnd(evt, menuSection, 'item')
+            onEnd: evt => handleOnEnd(evt, evt.to, 'item') // ✅ evt.to es la sección real
           });
         }
       });
@@ -425,7 +425,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("[handleOnEnd] Tipo:", type);
       console.table(items); // 🔥
     
-      items = items.filter(item => Number.isInteger(item.id));
     
       let apiEndpoint = '';
       let bodyData = {};
