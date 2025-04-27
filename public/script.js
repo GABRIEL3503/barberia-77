@@ -362,16 +362,18 @@ document.addEventListener("DOMContentLoaded", function () {
           element: item
         }));
       } else if (type === 'sections') {
-        rawItems = Array.from(container.querySelectorAll('.menu-section')).map(section => ({
-          id: Number(section.dataset.id),
-          element: section
-        }));
+        rawItems = Array.from(container.children)
+          .filter(child => child.classList.contains('menu-section'))
+          .map(section => ({
+            id: Number(section.dataset.id),
+            element: section
+          }));
       }
     
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       const items = validItems.map((item, index) => ({
         id: item.id,
-        position: (type === 'items' ? validItems.length - 1 - index : validItems.length - 1 - index) // 🔥 ambos invertidos
+        position: (validItems.length - 1 - index) // 🔥 invertido
       }));
     
       if (items.length === 0) {
@@ -404,6 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(data => console.log(`${type} ordenados correctamente`, data))
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
+    
     
   }
   
