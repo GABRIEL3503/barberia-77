@@ -279,195 +279,119 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function makeMenuSortable() {
-    const menuGroups = document.querySelectorAll('.menu-group');
-    const menuSections = document.querySelectorAll('.menu-section');
-    const container = document.querySelector('.container');
     const containerBotones = document.querySelector('.container-botones');
+    const menuGroups = document.querySelectorAll('.menu-group');
     let sortableEnabled = false;
-
+  
     let switchButton = document.querySelector('.switch-button');
     if (!switchButton) {
       switchButton = document.createElement('button');
       switchButton.classList.add('switch-button', 'auth-required');
-
       const icon = document.createElement('img');
       icon.src = 'img/touch_app_24dp_108DEE_FILL0_wght400_GRAD0_opsz24.png';
       icon.alt = 'Icono';
       icon.classList.add('button-icon');
       switchButton.appendChild(icon);
       switchButton.appendChild(document.createTextNode('Habilitar arrastre'));
-
-      if (containerBotones) {
-        containerBotones.appendChild(switchButton);
-      }
+      if (containerBotones) containerBotones.appendChild(switchButton);
     }
-    
+  
     switchButton.addEventListener('click', toggleSortable);
-
+  
     function toggleSortable() {
       sortableEnabled = !sortableEnabled;
       updateButtonState();
       resetSortableInstances();
-
-      if (sortableEnabled) {
-        enableSortable();
-      }
+      if (sortableEnabled) enableSortable();
     }
-
+  
     function updateButtonState() {
       switchButton.childNodes[1].textContent = sortableEnabled ? 'Deshabilitar arrastre' : 'Habilitar arrastre';
     }
-
+  
     function resetSortableInstances() {
-      menuGroups.forEach(menuGroup => {
-        if (menuGroup.sortableInstance) {
-          menuGroup.sortableInstance.destroy();
-          delete menuGroup.sortableInstance;
+      menuGroups.forEach(group => {
+        if (group.sortableInstance) {
+          group.sortableInstance.destroy();
+          delete group.sortableInstance;
         }
-      });
-
-      menuSections.forEach(menuSection => {
-        if (menuSection.sortableInstance) {
-          menuSection.sortableInstance.destroy();
-          delete menuSection.sortableInstance;
-        }
-      });
-
-      if (container.sortableInstance) {
-        container.sortableInstance.destroy();
-        delete container.sortableInstance;
-      }
-    }
-
-    function enableSortable() {
-      // Permitir arrastrar los grupos completos dentro del contenedor principal
-      if (!container.sortableInstance) {
-        container.sortableInstance = new Sortable(container, {
-          animation: 150,
-          handle: '.group-title', // Drag handle para grupos
-          ghostClass: 'sortable-ghost',
-          scroll: true, // 🔹 Activa auto-scroll
-          scrollSensitivity: 100, // 🔹 Ajusta la sensibilidad del scroll
-          scrollSpeed: 10, // 🔹 Controla la velocidad del scroll
-          group: "groups",
-          onStart: evt => {
-            if (!sortableEnabled) {
-              evt.preventDefault();
-            }
-          },
-          onEnd: evt => handleOnEnd(evt, container, 'groups')
-        });
-      }
-
-      // Hacer arrastrables las secciones dentro de cada grupo
-      menuGroups.forEach(menuGroup => {
-        if (!menuGroup.sortableInstance) {
-          menuGroup.sortableInstance = new Sortable(menuGroup, {
-            animation: 150,
-            handle: '.section-title', // Drag handle para secciones dentro de los grupos
-            ghostClass: 'sortable-ghost',
-            scroll: true, // 🔹 Activa auto-scroll
-            scrollSensitivity: 100, // 🔹 Ajusta la sensibilidad
-            scrollSpeed: 10, // 🔹 Controla la velocidad
-            group: "sections",
-            onStart: evt => {
-              if (!sortableEnabled) {
-                evt.preventDefault();
-              }
-            },
-            onEnd: evt => handleOnEnd(evt, menuGroup, 'sections')
-          });
-        }
-      });
-
-      // Hacer arrastrables los elementos dentro de cada sección
-      menuSections.forEach(menuSection => {
-        if (!menuSection.sortableInstance) {
-          menuSection.sortableInstance = new Sortable(menuSection, {
-            animation: 150,
-            handle: '.item-content', // Drag handle para items
-            ghostClass: 'sortable-ghost',
-            scroll: true, // 🔹 Activa auto-scroll
-            scrollSensitivity: 100, // 🔹 Ajusta la sensibilidad
-            scrollSpeed: 10, // 🔹 Controla la velocidad
-            group: "items",
-            draggable: '.contenedor-items', // 🔥 ESTA LÍNEA ES CLAVE
-
-            onStart: evt => {
-              if (!sortableEnabled) {
-                evt.preventDefault();
-              }
-            },
-            onEnd: evt => handleOnEnd(evt, evt.to, 'item') // ✅ evt.to es la sección real
-          });
-        }
-      });
-    }
-
-
-    function handleOnEnd(evt, container, type) {
-      if (!sortableEnabled) return;
-    
-      let rawItems = [];
-    
-      if (type === 'item') {
-        // CORREGIDO: Buscar TODOS los .contenedor-items
-        const contenedores = container.querySelectorAll('.contenedor-items');
-        contenedores.forEach(contenedor => {
-          const menuItem = contenedor.querySelector('.menu-item');
-          if (menuItem && menuItem.dataset.subelement !== "0") {
-            rawItems.push({
-              id: Number(menuItem.dataset.id),
-              element: contenedor // GUARDAR el CONTENEDOR, no el menu-item suelto
-            });
+        group.querySelectorAll('.menu-section').forEach(section => {
+          if (section.sortableInstance) {
+            section.sortableInstance.destroy();
+            delete section.sortableInstance;
           }
         });
-      } else {
-        rawItems = Array.from(container.querySelectorAll('.menu-item'))
-          .filter(item => item.dataset.subelement !== "0")
-          .map(item => ({
-            id: Number(item.dataset.id),
-            element: item
-          }));
+      });
+    }
+  
+    function enableSortable() {
+      // 🔥 Dentro de cada grupo: arrastrar secciones
+      menuGroups.forEach(group => {
+        group.sortableInstance = new Sortable(group, {
+          animation: 150,
+          handle: '.section-title',
+          draggable: '.menu-section',
+          ghostClass: 'sortable-ghost',
+          scroll: true,
+          onStart: evt => { if (!sortableEnabled) evt.preventDefault(); },
+          onEnd: evt => handleOnEnd(evt, group, 'sections')
+        });
+  
+        // 🔥 Dentro de cada sección: arrastrar items
+        group.querySelectorAll('.menu-section').forEach(section => {
+          section.sortableInstance = new Sortable(section, {
+            animation: 150,
+            handle: '.item-content',
+            draggable: '.contenedor-items',
+            ghostClass: 'sortable-ghost',
+            scroll: true,
+            onStart: evt => { if (!sortableEnabled) evt.preventDefault(); },
+            onEnd: evt => handleOnEnd(evt, section, 'items')
+          });
+        });
+      });
+    }
+  
+    function handleOnEnd(evt, container, type) {
+      if (!sortableEnabled) return;
+  
+      let rawItems = [];
+      if (type === 'items') {
+        rawItems = Array.from(container.querySelectorAll('.contenedor-items')).map(item => ({
+          id: Number(item.dataset.id),
+          element: item
+        }));
+      } else if (type === 'sections') {
+        rawItems = Array.from(container.querySelectorAll('.menu-section')).map(section => ({
+          id: Number(section.dataset.id),
+          element: section
+        }));
       }
-    
+  
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
-      let items = validItems.map((item, index) => ({
+      const items = validItems.map((item, index) => ({
         id: item.id,
         position: index
       }));
-    
-      const invalidItems = rawItems.filter(item => !Number.isInteger(item.id));
-      invalidItems.forEach(({ element }) => {
-        element.style.border = '2px solid red';
-        element.title = 'ID inválido';
-      });
-    
+  
       if (items.length === 0) {
         console.warn(`[handleOnEnd] No se encontraron items válidos para ${type}.`);
         return;
       }
-    
+  
       let apiEndpoint = '';
       let bodyData = {};
-    
-      if (type === 'groups') {
-        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/groups/order`;
-        bodyData = { groups: items };
-      } else if (type === 'sections') {
-        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
+  
+      if (type === 'sections') {
+        apiEndpoint = `/api/sections/order`;
         bodyData = { sections: items };
-      } else if (type === 'item') {
-        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
+      } else if (type === 'items') {
+        apiEndpoint = `/api/menu/order`;
         bodyData = { items: items };
-      } else {
-        console.error(`[handleOnEnd] Tipo inválido: ${type}.`);
-        return;
       }
-    
-      console.log("[handleOnEnd] Enviando a API:", bodyData);
-      console.log("Items enviados:", items);
-    
+  
+      console.log(`[handleOnEnd] Enviando a ${apiEndpoint}`, bodyData);
+  
       fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
@@ -476,27 +400,12 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         body: JSON.stringify(bodyData)
       })
-      .then(async response => {
-        const text = await response.text();
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${text}`);
-        }
-        return JSON.parse(text);
-      })
-      .then(data => console.log(`${type.charAt(0).toUpperCase() + type.slice(1)} ordenado correctamente`, data))
-      .catch(error => {
-        console.error(`Error al ordenar ${type}:`, error);
-      });
+      .then(res => res.json())
+      .then(data => console.log(`${type} ordenados correctamente`, data))
+      .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
-    
-    
-    
-    
-    
-
-
   }
-
+  
   makeMenuSortable();
 
 
