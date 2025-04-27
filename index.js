@@ -586,28 +586,48 @@ baseRouter.put('/api/menu/order', (req, res) => {
     return res.status(400).json({ error: "Se esperaba un array 'items'." });
   }
 
+  console.log("📩 Items recibidos para ordenar:", items);
+
   db.serialize(() => {
     db.run('BEGIN TRANSACTION');
     const stmt = db.prepare('UPDATE menu_items SET position = ? WHERE id = ?');
 
+    let notFoundItems = []; // Para loguear los que no se pudieron actualizar
     let pending = items.length;
 
     items.forEach(item => {
+      console.log(`📦 Intentando actualizar: ID ${item.id}, nueva posición ${item.position}`);
+
       stmt.run(item.position, item.id, function (err) {
         if (err) {
           console.error(`❌ Error al actualizar item ${item.id}:`, err);
+        } else {
+          if (this.changes === 0) {
+            console.warn(`⚠️ WARNING: No se encontró item con id ${item.id} en la base.`);
+            notFoundItems.push(item.id);
+          } else {
+            console.log(`✅ Item actualizado correctamente: ID ${item.id}, nueva posición ${item.position}`);
+          }
         }
-        // 🔥 Ya NO chequeamos si this.changes === 0, seguimos siempre.
-        
+
         pending--;
-        if (pending === 0) { // Último item
+        if (pending === 0) { // Cuando terminan todos
           stmt.finalize();
           db.run('COMMIT', err => {
             if (err) {
-              console.error("❌ Error en commit:", err);
+              console.error("❌ Error en COMMIT:", err);
               return res.status(500).json({ error: err.message });
             }
-            console.log("✅ Todos los productos actualizados correctamente.");
+
+            if (notFoundItems.length > 0) {
+              console.error("❌ Items no encontrados:", notFoundItems);
+              return res.status(404).json({
+                error: "Algunos productos no fueron encontrados.",
+                missing: notFoundItems
+              });
+            }
+
+            console.log("✅ Todos los productos fueron actualizados exitosamente.");
             res.json({ success: true });
           });
         }
