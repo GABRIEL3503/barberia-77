@@ -511,11 +511,10 @@ document.addEventListener("DOMContentLoaded", function () {
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
-// File: renderMenuItems.js
+// 📂 File: renderMenuItems.js
 
-function renderMenuItems(menuData, sectionsData) {
+function renderMenuItems(menuData) {
   const container = document.querySelector('.container');
-
   container.querySelectorAll('.menu-section').forEach(section => section.remove());
   container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
 
@@ -546,24 +545,29 @@ function renderMenuItems(menuData, sectionsData) {
     return containers;
   }, {});
 
-  const itemsBySection = {};
+  const sectionsMap = {};
   menuData.forEach(item => {
-    if (!itemsBySection[item.section_id]) {
-      itemsBySection[item.section_id] = [];
+    if (!sectionsMap[item.section_id]) {
+      sectionsMap[item.section_id] = {
+        section_id: item.section_id,
+        tipo: item.tipo,
+        parent_group: item.parent_group,
+        items: [],
+        position: item.position || 0 // 🔥 usar solo `position`
+      };
     }
-    itemsBySection[item.section_id].push(item);
+    sectionsMap[item.section_id].items.push(item);
   });
 
-  const orderedSections = sectionsData.sort((a, b) => a.position - b.position);
+  const orderedSections = Object.values(sectionsMap).sort((a, b) => a.position - b.position);
 
   orderedSections.forEach(section => {
-    const { id: sectionId, nombre: tipo, parent_group } = section;
+    const { parent_group, tipo, items } = section;
     const parent = parentContainers[parent_group || 'barberia'];
-    if (!parent) return;
 
     const menuSection = document.createElement('div');
     menuSection.className = 'menu-section';
-    menuSection.setAttribute('data-id', sectionId);
+    menuSection.setAttribute('data-id', section.section_id);
     menuSection.setAttribute('data-type', tipo);
     menuSection.innerHTML = `
       <h2 class="section-title">
@@ -572,9 +576,9 @@ function renderMenuItems(menuData, sectionsData) {
     `;
     parent.appendChild(menuSection);
 
-    const sectionItems = (itemsBySection[sectionId] || []).sort((a, b) => a.position - b.position);
+    const sortedItems = items.sort((a, b) => a.position - b.position);
 
-    sectionItems.forEach(item => {
+    sortedItems.forEach(item => {
       const newItem = createMenuItem(item);
       newItem.dataset.id = item.id;
       newItem.dataset.hidden = item.hidden;
