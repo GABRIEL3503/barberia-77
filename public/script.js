@@ -356,16 +356,13 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!sortableEnabled) return;
     
       let rawItems = [];
-    
       if (type === 'items') {
-        // 🔥 Buscar solo contenedores de items hijos directos
-        rawItems = Array.from(container.querySelectorAll(':scope > .contenedor-items')).map(item => ({
+        rawItems = Array.from(container.querySelectorAll('.contenedor-items')).map(item => ({
           id: Number(item.dataset.id),
           element: item
         }));
       } else if (type === 'sections') {
-        // 🔥 Buscar solo secciones hijas directas
-        rawItems = Array.from(container.querySelectorAll(':scope > .menu-section')).map(section => ({
+        rawItems = Array.from(container.querySelectorAll('.menu-section')).map(section => ({
           id: Number(section.dataset.id),
           element: section
         }));
@@ -374,12 +371,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       const items = validItems.map((item, index) => ({
         id: item.id,
-        position: validItems.length - 1 - index // 🛠️ inverso
+        position: (type === 'items' ? validItems.length - 1 - index : validItems.length - 1 - index) // 🔥 ambos invertidos
       }));
-      
     
       if (items.length === 0) {
-        console.warn(`[handleOnEnd] No se encontraron ${type} válidos.`);
+        console.warn(`[handleOnEnd] No se encontraron items válidos para ${type}.`);
         return;
       }
     
@@ -404,13 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         body: JSON.stringify(bodyData)
       })
-      .then(async res => {
-        const text = await res.text();
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}: ${text}`);
-        }
-        return JSON.parse(text);
-      })
+      .then(res => res.json())
       .then(data => console.log(`${type} ordenados correctamente`, data))
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
