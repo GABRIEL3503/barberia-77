@@ -409,16 +409,17 @@ document.addEventListener("DOMContentLoaded", function () {
       let rawItems = [];
     
       if (type === 'item') {
-        const contenedorItems = container.querySelector('.contenedor-items');
-        if (contenedorItems) {
-          rawItems = Array.from(contenedorItems.children)
-            .filter(child => child.classList.contains('menu-item'))
-            .filter(item => item.dataset.subelement !== "0")
-            .map(item => ({
-              id: Number(item.dataset.id),
-              element: item
-            }));
-        }
+        // CORREGIDO: Buscar TODOS los .contenedor-items
+        const contenedores = container.querySelectorAll('.contenedor-items');
+        contenedores.forEach(contenedor => {
+          const menuItem = contenedor.querySelector('.menu-item');
+          if (menuItem && menuItem.dataset.subelement !== "0") {
+            rawItems.push({
+              id: Number(menuItem.dataset.id),
+              element: contenedor // GUARDAR el CONTENEDOR, no el menu-item suelto
+            });
+          }
+        });
       } else {
         rawItems = Array.from(container.querySelectorAll('.menu-item'))
           .filter(item => item.dataset.subelement !== "0")
@@ -485,6 +486,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error(`Error al ordenar ${type}:`, error);
       });
     }
+    
     
     
     
