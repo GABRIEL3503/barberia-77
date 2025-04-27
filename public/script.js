@@ -388,7 +388,6 @@ document.addEventListener("DOMContentLoaded", function () {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items };
     
-        // 🔥🔥 Mover elementos en el DOM localmente
         const ordered = items
           .sort((a, b) => a.position - b.position)
           .map(i => validItems.find(v => v.id === i.id)?.element)
@@ -411,9 +410,16 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify(bodyData)
       })
       .then(res => res.json())
-      .then(data => console.log(`${type} ordenados correctamente`, data))
+      .then(data => {
+        console.log(`${type} ordenados correctamente`, data);
+    
+        if (type === 'sections') {
+          fetchMenuDataFromServer(); // ✅ Ahora recarga el menú después de guardar bien
+        }
+      })
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
+    
     
     
     
