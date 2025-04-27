@@ -406,43 +406,12 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(sectionData => {
               const sections = sectionData.data;
-        
-              // 1. Ordenar las secciones por parent_group y luego por position
-              sections.sort((a, b) => {
-                if (a.parent_group === b.parent_group) {
-                  return a.position - b.position;
-                }
-                return a.parent_group.localeCompare(b.parent_group);
-              });
-        
-              // 2. Agrupar los elementos por su parent_group
-              const groupElements = {};
-              document.querySelectorAll('.menu-group').forEach(group => {
-                const parentGroup = group.getAttribute('data-group');
-                groupElements[parentGroup] = group;
-              });
-        
-              // 3. Limpiar las secciones actuales de cada grupo
-              for (const group of Object.values(groupElements)) {
-                const sections = group.querySelectorAll('.menu-section');
-                sections.forEach(section => group.removeChild(section));
-              }
-        
-              // 4. Insertar en el orden correcto
-              sections.forEach(sectionInfo => {
-                const group = groupElements[sectionInfo.parent_group];
-                const sectionEl = document.querySelector(`.menu-section[data-id="${sectionInfo.id}"]`);
-                if (group && sectionEl) {
-                  group.appendChild(sectionEl);
-                } else {
-                  console.warn(`Sección o grupo no encontrado para ID ${sectionInfo.id} / ${sectionInfo.parent_group}`);
-                }
-              });
-        
+    
+              // Reordenar y regenerar el menú usando el render oficial
+              renderMenuItems(sections);
             })
             .catch(err => console.error('Error actualizando orden de secciones:', err));
         }
-        
       })
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
