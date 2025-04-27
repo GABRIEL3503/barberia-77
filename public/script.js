@@ -555,20 +555,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function renderMenuItems(menuData) {
     const container = document.querySelector('.container');
-  
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
     container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
   
     const isAuthenticated = !!localStorage.getItem('jwt_la-barberia-77');
-    const lastCreatedId = localStorage.getItem('lastCreatedItemId');
   
     const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
-      const existing = container.querySelector(`.menu-group[data-group="${group.id}"]`);
-      if (existing) {
-        containers[group.id] = existing;
-        return containers;
-      }
-  
       const groupContainer = document.createElement('div');
       groupContainer.className = 'menu-group';
       groupContainer.setAttribute('data-group', group.id);
@@ -594,9 +586,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-    const sections = {};
+    menuData.sort((a, b) => a.position - b.position);
   
-    // 🔥 Agrupar items por sección y ordenar primero las secciones por position
     const groupedSections = {};
   
     menuData.forEach(item => {
@@ -605,43 +596,32 @@ document.addEventListener("DOMContentLoaded", function () {
   
       if (!groupedSections[sectionKey]) {
         groupedSections[sectionKey] = {
-          section_id: item.section_id,
           parentGroup,
           tipo: item.tipo,
+          section_id: item.section_id,
           items: []
         };
       }
-  
       groupedSections[sectionKey].items.push(item);
     });
   
-    // 🔥 🔥 🔥 Ahora ordenar secciones por section_id o position si lo tenés (esto depende de lo que tengas disponible)
     const orderedSections = Object.values(groupedSections).sort((a, b) => a.section_id - b.section_id);
   
     orderedSections.forEach(sectionData => {
       const { parentGroup, tipo, items } = sectionData;
-      const sectionKey = `${parentGroup}-${tipo}`;
   
-      if (!sections[sectionKey]) {
-        const menuSection = document.createElement('div');
-        menuSection.className = 'menu-section';
-        menuSection.setAttribute('data-type', tipo);
+      const menuSection = document.createElement('div');
+      menuSection.className = 'menu-section';
+      menuSection.setAttribute('data-id', sectionData.section_id);
+      menuSection.setAttribute('data-type', tipo);
   
-        menuSection.innerHTML = `
-          <h2 class="section-title">
-            <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
-          </h2>
-        `;
+      menuSection.innerHTML = `
+        <h2 class="section-title">
+          <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
+        </h2>
+      `;
   
-        sections[sectionKey] = menuSection;
-        parentContainers[parentGroup].appendChild(menuSection);
-      }
-  
-      const section = sections[sectionKey];
-      const afterTitle = section.querySelector('h2.section-title')?.nextSibling;
-  
-      // 🔥 ordenar los items internos por position
-      items.sort((a, b) => a.position - b.position);
+      parentContainers[parentGroup].appendChild(menuSection);
   
       items.forEach(item => {
         const newItem = createMenuItem(item);
@@ -668,7 +648,8 @@ document.addEventListener("DOMContentLoaded", function () {
           newItem.style.opacity = isAuthenticated ? '0.3' : '1';
         }
   
-        section.insertBefore(newItem, afterTitle || null);
+        const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
+        menuSection.insertBefore(newItem, afterTitle || null);
       });
     });
   
