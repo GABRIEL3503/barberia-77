@@ -511,20 +511,20 @@ document.addEventListener("DOMContentLoaded", function () {
           section_id: item.section_id,
           tipo: item.tipo,
           parent_group: item.parent_group,
-          items: [],
-          minPosition: item.position
+          items: []
         };
       }
       sectionsMap[item.section_id].items.push(item);
-      if (item.position < sectionsMap[item.section_id].minPosition) {
-        sectionsMap[item.section_id].minPosition = item.position;
-      }
     });
   
-    // 🔥 2. Ordenar secciones manualmente por `minPosition`
-    const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-      return (a.minPosition || 0) - (b.minPosition || 0);
-    });
+    // 🔥 2. Ordenar secciones por primer `position` de sus items
+ // 🔥 2. Ordenar secciones por el "position" de la sección misma
+const orderedSections = Object.values(sectionsMap).sort((a, b) => {
+  const aPos = a.items[0]?.section_position ?? 0;
+  const bPos = b.items[0]?.section_position ?? 0;
+  return aPos - bPos;
+});
+
   
     // 🔥 3. Renderizar secciones ordenadas
     orderedSections.forEach(section => {
@@ -543,7 +543,8 @@ document.addEventListener("DOMContentLoaded", function () {
       parent.appendChild(menuSection);
   
       // 🔥 4. Ordenar los items dentro de la sección
-      const sortedItems = items.sort((a, b) => a.position - b.position);  
+      const sortedItems = items.sort((a, b) => a.position - b.position);
+  
       sortedItems.forEach(item => {
         const newItem = createMenuItem(item);
         newItem.dataset.id = item.id;
@@ -569,7 +570,8 @@ document.addEventListener("DOMContentLoaded", function () {
           newItem.style.opacity = isAuthenticated ? '0.3' : '1';
         }
   
-        menuSection.appendChild(newItem);
+        const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
+        menuSection.insertBefore(newItem, afterTitle || null);
       });
     });
   
