@@ -373,7 +373,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       const items = validItems.map((item, index) => ({
         id: item.id,
-        position: (type === 'items' ? validItems.length - 1 - index : index) // 🔥 SOLO ítems invertimos
+        position: (type === 'items' ? validItems.length - 1 - index : index)
       }));
     
       if (items.length === 0) {
@@ -388,8 +388,12 @@ document.addEventListener("DOMContentLoaded", function () {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items };
     
-        const ordered = validItems.map(item => item.element);
-        ordered.forEach(el => container.appendChild(el)); // 🔥 SOLO mover DOM localmente
+        const ordered = items
+          .sort((a, b) => a.position - b.position)
+          .map(i => validItems.find(v => v.id === i.id)?.element)
+          .filter(Boolean);
+    
+        ordered.forEach(el => container.appendChild(el));
       } else if (type === 'items') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
@@ -406,11 +410,7 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify(bodyData)
       })
       .then(res => res.json())
-      .then(data => {
-        console.log(`${type} ordenados correctamente`, data);
-        // 🔥🔥🔥 Importante: NO llamar fetchMenuDataFromServer aquí automáticamente.
-        // Si querés forzar recarga, que sea manual (como botón "Actualizar" si querés)
-      })
+      .then(data => console.log(`${type} ordenados correctamente`, data))
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
     
