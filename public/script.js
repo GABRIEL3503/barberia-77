@@ -454,7 +454,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     
       console.log("[handleOnEnd] Enviando a API:", bodyData);
-    
+      console.log("Items enviados:", items);
+
       fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
