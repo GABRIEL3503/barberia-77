@@ -406,37 +406,25 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(sectionData => {
               const sections = sectionData.data;
+              const groups = document.querySelectorAll('.menu-group');
     
-              // 🔥 Agrupamos las secciones en su parent_group
-              const groupElements = {};
-              document.querySelectorAll('.menu-group').forEach(group => {
-                const parentGroup = group.getAttribute('data-group');
-                groupElements[parentGroup] = group;
-              });
+              groups.forEach(group => {
+                const parentId = group.getAttribute('data-group');
+                const matchingSections = sections
+                  .filter(sec => sec.parent_group === parentId)
+                  .sort((a, b) => a.position - b.position);
     
-              // 🔥 Limpiar todas las secciones existentes de los grupos
-              Object.values(groupElements).forEach(group => {
-                group.querySelectorAll('.menu-section').forEach(section => group.removeChild(section));
-              });
-    
-              // 🔥 Insertar en el orden correcto
-              sections.forEach(sectionInfo => {
-                const group = groupElements[sectionInfo.parent_group];
-                const sectionEl = document.querySelector(`.menu-section[data-id="${sectionInfo.id}"]`);
-                if (group && sectionEl) {
-                  group.appendChild(sectionEl);
-                } else {
-                  console.warn(`Sección o grupo no encontrado para ID ${sectionInfo.id} / ${sectionInfo.parent_group}`);
-                }
+                matchingSections.forEach(sec => {
+                  const el = group.querySelector(`.menu-section[data-id='${sec.id}']`);
+                  if (el) group.appendChild(el);
+                });
               });
             })
             .catch(err => console.error('Error actualizando orden de secciones:', err));
         }
-    
       })
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
-    
     
     
     
@@ -536,30 +524,23 @@ document.addEventListener("DOMContentLoaded", function () {
     }, {});
   
     const sectionsMap = {};
-  
     menuData.forEach(item => {
-      const sectionId = item.section_id || item.id;  // 🔥 Si viene desde sections API
-      const sectionTipo = item.tipo || item.nombre || ''; // 🔥 nombre para secciones
-      const parentGroup = item.parent_group || 'barberia';
-      const position = item.position || 0;
-  
-      if (!sectionsMap[sectionId]) {
-        sectionsMap[sectionId] = {
-          section_id: sectionId,
-          tipo: sectionTipo,
-          parent_group: parentGroup,
+      if (!sectionsMap[item.section_id]) {
+        sectionsMap[item.section_id] = {
+          section_id: item.section_id,
+          tipo: item.tipo,
+          parent_group: item.parent_group,
           items: [],
-          section_position: position
+          section_position: Number.isInteger(item.section_position) ? item.section_position : (item.position || 0)
         };
       }
-  
-      if (item.item_name) {
-        sectionsMap[sectionId].items.push(item);
-      }
+      sectionsMap[item.section_id].items.push(item);
     });
   
+    // 🔥 2. Ordenar correctamente las secciones usando section_position o position
     const orderedSections = Object.values(sectionsMap).sort((a, b) => a.section_position - b.section_position);
   
+    // 🔥 3. Renderizar secciones ordenadas
     orderedSections.forEach(section => {
       const { parent_group, tipo, items } = section;
       const parent = parentContainers[parent_group || 'barberia'];
@@ -575,6 +556,7 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
       parent.appendChild(menuSection);
   
+      // 🔥 4. Ordenar los items dentro de la sección por position
       const sortedItems = items.sort((a, b) => a.position - b.position);
   
       sortedItems.forEach(item => {
@@ -609,12 +591,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
     checkAuthentication();
   
+    // 🔥 Reubicar grupo estático al fondo
     const staticGroup = container.querySelector('.menu-group.static-group');
     if (staticGroup) {
       container.appendChild(staticGroup);
     }
   }
-  
   
   
   
