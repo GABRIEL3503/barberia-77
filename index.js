@@ -264,198 +264,10 @@ baseRouter.get('/api/menu', (req, res) => {
 
 
   
-baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
-  const db = ensureDatabaseConnection();
-  const { id } = req.params;
-  const { nombre, precio, descripcion, tipo, stock, parent_group } = req.body;
-
-  let parsedStock = [];
-  try {
-    parsedStock = typeof stock === "string" ? JSON.parse(stock) : stock;
-    if (!Array.isArray(parsedStock)) parsedStock = [];
-  } catch (err) {
-    parsedStock = [];
-  }
-
-  const rawPrecio = (precio || "").toString().replace(/\./g, "").trim();
-  const precioEntero = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
-
-  
-  db.serialize(() => {
-    db.run("BEGIN TRANSACTION");
-
-    db.get("SELECT img_url FROM menu_items WHERE id = ?", [id], async (err, row) => {
-      if (err) {
-        db.run("ROLLBACK");
-        return res.status(500).json({ error: err.message });
-      }
-
-      const oldImgUrl = row ? row.img_url : null;
-      let newImgUrl = oldImgUrl;
-
-      if (req.file) {
-        const imageFileName = `compressed-${Date.now()}.webp`;
-        const compressedImagePath = path.join(__dirname, 'public/img/', imageFileName);
-
-        try {
-          await sharp(req.file.buffer)
-            .resize({ width: 1600, height: 1600, fit: "inside" })
-            .toFormat("webp", { quality: 95 })
-            .toFile(compressedImagePath);
-
-          newImgUrl = `img/${imageFileName}`;
-        } catch (error) {
-          db.run("ROLLBACK");
-          return res.status(500).json({ error: "Error al procesar la imagen." });
-        }
-      }
-
-      const query = `
-        UPDATE menu_items 
-        SET nombre = ?, precio = ?, descripcion = ?, tipo = ?, img_url = ?, parent_group = ?
-        WHERE id = ?`;
-      db.run(
-        query,
-        [nombre, precioEntero, descripcion, tipo, newImgUrl, parent_group || "barberia", id],
-        function (err) {
-          if (err) {
-            db.run("ROLLBACK");
-            return res.status(500).json({ error: err.message });
-          }
-
-          if (this.changes === 0) {
-            db.run("ROLLBACK");
-            return res.status(404).json({ error: "Producto no encontrado." });
-          }
-
-          // Obtener el stock actual antes de modificarlo
-          db.all("SELECT talle, color FROM stock_items WHERE menu_item_id = ?", [id], (err, existingStock) => {
-            if (err) {
-              db.run("ROLLBACK");
-              return res.status(500).json({ error: err.message });
-            }
-
-            const stockSet = new Set(existingStock.map(({ talle, color }) => `${talle}-${color}`));
-
-            const updateStockPromises = parsedStock.map(({ talle, color, cantidad }) => {
-              const stockKey = `${talle}-${color}`;
-
-              if (stockSet.has(stockKey)) {
-                // ✅ Si la combinación ya existe, actualizar la cantidad
-                return new Promise((resolve, reject) => {
-                  db.run("UPDATE stock_items SET cantidad = ? WHERE menu_item_id = ? AND talle = ? AND color = ?", 
-                    [cantidad, id, talle, color], function (err) {
-                      if (err) return reject(err);
-                      resolve();
-                    });
-                });
-              } else {
-                // ✅ Si la combinación no existe, insertarla
-                return new Promise((resolve, reject) => {
-                  db.run("INSERT INTO stock_items (menu_item_id, talle, color, cantidad) VALUES (?, ?, ?, ?)", 
-                    [id, talle, color, cantidad], function (err) {
-                      if (err) return reject(err);
-                      resolve();
-                    });
-                });
-              }
-            });
-
-            // ✅ Si algún stock tiene cantidad 0, eliminarlo
-            parsedStock.forEach(({ talle, color, cantidad }) => {
-              if (cantidad === 0) {
-                db.run("DELETE FROM stock_items WHERE menu_item_id = ? AND talle = ? AND color = ?", 
-                  [id, talle, color]);
-              }
-            });
-
-            Promise.all(updateStockPromises)
-              .then(() => {
-                db.run("COMMIT", (err) => {
-                  if (err) {
-                    return res.status(500).json({ error: err.message });
-                  }
-
-                  // ✅ Si hay una nueva imagen, eliminar la anterior (excepto si son iguales)
-                  if (req.file && oldImgUrl && newImgUrl !== oldImgUrl) {
-                    const fullPath = path.join(__dirname, "public", oldImgUrl);
-                    fs.unlink(fullPath, (err) => {
-                      if (err) console.error("Error al eliminar la imagen antigua:", err);
-                    });
-                  }
-
-                  res.json({ success: true, img_url: newImgUrl });
-                });
-              })
-              .catch((err) => {
-                db.run("ROLLBACK");
-                res.status(500).json({ error: err.message });
-              });
-          });
-        }
-      );
-    });
-  });
-});
-
 
   
 
 
-baseRouter.delete('/api/menu/:id', (req, res) => {
-  const db = ensureDatabaseConnection();
-  const { id } = req.params;
-
-  db.get('SELECT img_url FROM menu_items WHERE id = ?', [id], (err, row) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    if (!row) {
-      return res.status(404).json({ error: "Producto no encontrado." });
-    }
-
-    db.run('DELETE FROM stock_items WHERE menu_item_id = ?', [id], function (err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-
-      db.run('DELETE FROM menu_items WHERE id = ?', [id], function (err) {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-
-        if (this.changes === 0) {
-          return res.status(404).json({ error: "Producto no encontrado." });
-        }
-
-        // ✅ Verificar si hay imagen asociada antes de intentar eliminarla
-        if (row.img_url) {
-          const imagePath = path.join(__dirname, 'public', 'img', path.basename(row.img_url)); // 🔥 Asegura la ruta correcta
-
-          fs.access(imagePath, fs.constants.F_OK, (err) => {
-            if (!err) {
-              fs.unlink(imagePath, (err) => {
-                if (err) {
-                  console.error("❌ Error al eliminar la imagen:", err);
-                  return res.status(500).json({ error: "Producto eliminado, pero la imagen no pudo ser eliminada." });
-                }
-                console.log(`✅ Imagen eliminada correctamente: ${imagePath}`);
-                res.json({ deleted: true }); // 🔥 Solo respondemos después de eliminar la imagen correctamente
-              });
-            } else {
-              console.warn("⚠️ La imagen no existe en la carpeta:", imagePath);
-              res.json({ deleted: true }); // 🔥 Si no existe, igual confirmamos que el producto fue eliminado
-            }
-          });
-
-        } else {
-          res.json({ deleted: true }); // ✅ Si no hay imagen, simplemente confirmamos la eliminación
-        }
-      });
-    });
-  });
-});
 
  
   baseRouter.post('/api/announcements', upload.single('image'), async (req, res) => {
@@ -641,64 +453,7 @@ baseRouter.put('/api/menu/order', (req, res) => {
 
 
 
-baseRouter.get('/api/sections', (req, res) => {
-  const db = ensureDatabaseConnection(); // Garantizar la conexión
 
-  const query = 'SELECT id, nombre, position, parent_group FROM menu_sections ORDER BY position'; // 🔹 Asegurar orden correcto
-  db.all(query, [], (err, rows) => {
-      if (err) {
-          res.status(500).json({ error: err.message });
-          return;
-      }
-      res.json({ data: rows });
-  });
-});
-
-
-baseRouter.get('/api/menu/:id', (req, res) => {
-  const db = ensureDatabaseConnection();
-  const { id } = req.params;
-
-  db.get('SELECT * FROM menu_items WHERE id = ?', [id], (err, item) => {
-    if (err) {
-      console.error("Error al obtener el ítem:", err);
-      return res.status(500).json({ error: "Error en el servidor." });
-    }
-
-    if (!item) {
-      return res.status(404).json({ error: "Ítem no encontrado." });
-    }
-
-    // Obtener talles y colores desde `stock_items`
-    db.all(
-      `SELECT id, talle, color, cantidad 
-       FROM stock_items 
-       WHERE menu_item_id = ? AND cantidad > 0`,
-      [id],
-      (err, stock) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-    
-        // Organizar stock en estructura adecuada
-        const talles = {};
-        stock.forEach(({ id, talle, color, cantidad }) => {
-          if (!talles[talle]) {
-            talles[talle] = [];
-          }
-          talles[talle].push({
-            id, // ✅ Ahora incluimos el ID correctamente
-            color,
-            cantidad
-          });
-        });
-    
-        res.json({ ...item, stock: talles });
-      }
-    );
-    
-  });
-});
 baseRouter.get('/api/menu/:id/talles', (req, res) => {
   const db = ensureDatabaseConnection();
   const { id } = req.params;
@@ -1167,8 +922,253 @@ baseRouter.get('/visitas', (req, res) => {
     });
   });
 });
+baseRouter.get('/api/sections', (req, res) => {
+  const db = ensureDatabaseConnection(); // Garantizar la conexión
+
+  const query = 'SELECT id, nombre, position, parent_group FROM menu_sections ORDER BY position'; // 🔹 Asegurar orden correcto
+  db.all(query, [], (err, rows) => {
+      if (err) {
+          res.status(500).json({ error: err.message });
+          return;
+      }
+      res.json({ data: rows });
+  });
+});
 
 
+baseRouter.get('/api/menu/:id', (req, res) => {
+  const db = ensureDatabaseConnection();
+  const { id } = req.params;
+
+  db.get('SELECT * FROM menu_items WHERE id = ?', [id], (err, item) => {
+    if (err) {
+      console.error("Error al obtener el ítem:", err);
+      return res.status(500).json({ error: "Error en el servidor." });
+    }
+
+    if (!item) {
+      return res.status(404).json({ error: "Ítem no encontrado." });
+    }
+
+    // Obtener talles y colores desde `stock_items`
+    db.all(
+      `SELECT id, talle, color, cantidad 
+       FROM stock_items 
+       WHERE menu_item_id = ? AND cantidad > 0`,
+      [id],
+      (err, stock) => {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+    
+        // Organizar stock en estructura adecuada
+        const talles = {};
+        stock.forEach(({ id, talle, color, cantidad }) => {
+          if (!talles[talle]) {
+            talles[talle] = [];
+          }
+          talles[talle].push({
+            id, // ✅ Ahora incluimos el ID correctamente
+            color,
+            cantidad
+          });
+        });
+    
+        res.json({ ...item, stock: talles });
+      }
+    );
+    
+  });
+});
+baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
+  const db = ensureDatabaseConnection();
+  const { id } = req.params;
+  const { nombre, precio, descripcion, tipo, stock, parent_group } = req.body;
+
+  let parsedStock = [];
+  try {
+    parsedStock = typeof stock === "string" ? JSON.parse(stock) : stock;
+    if (!Array.isArray(parsedStock)) parsedStock = [];
+  } catch (err) {
+    parsedStock = [];
+  }
+
+  const rawPrecio = (precio || "").toString().replace(/\./g, "").trim();
+  const precioEntero = /^[0-9]+$/.test(rawPrecio) ? parseInt(rawPrecio, 10) : 0;
+
+  
+  db.serialize(() => {
+    db.run("BEGIN TRANSACTION");
+
+    db.get("SELECT img_url FROM menu_items WHERE id = ?", [id], async (err, row) => {
+      if (err) {
+        db.run("ROLLBACK");
+        return res.status(500).json({ error: err.message });
+      }
+
+      const oldImgUrl = row ? row.img_url : null;
+      let newImgUrl = oldImgUrl;
+
+      if (req.file) {
+        const imageFileName = `compressed-${Date.now()}.webp`;
+        const compressedImagePath = path.join(__dirname, 'public/img/', imageFileName);
+
+        try {
+          await sharp(req.file.buffer)
+            .resize({ width: 1600, height: 1600, fit: "inside" })
+            .toFormat("webp", { quality: 95 })
+            .toFile(compressedImagePath);
+
+          newImgUrl = `img/${imageFileName}`;
+        } catch (error) {
+          db.run("ROLLBACK");
+          return res.status(500).json({ error: "Error al procesar la imagen." });
+        }
+      }
+
+      const query = `
+        UPDATE menu_items 
+        SET nombre = ?, precio = ?, descripcion = ?, tipo = ?, img_url = ?, parent_group = ?
+        WHERE id = ?`;
+      db.run(
+        query,
+        [nombre, precioEntero, descripcion, tipo, newImgUrl, parent_group || "barberia", id],
+        function (err) {
+          if (err) {
+            db.run("ROLLBACK");
+            return res.status(500).json({ error: err.message });
+          }
+
+          if (this.changes === 0) {
+            db.run("ROLLBACK");
+            return res.status(404).json({ error: "Producto no encontrado." });
+          }
+
+          // Obtener el stock actual antes de modificarlo
+          db.all("SELECT talle, color FROM stock_items WHERE menu_item_id = ?", [id], (err, existingStock) => {
+            if (err) {
+              db.run("ROLLBACK");
+              return res.status(500).json({ error: err.message });
+            }
+
+            const stockSet = new Set(existingStock.map(({ talle, color }) => `${talle}-${color}`));
+
+            const updateStockPromises = parsedStock.map(({ talle, color, cantidad }) => {
+              const stockKey = `${talle}-${color}`;
+
+              if (stockSet.has(stockKey)) {
+                // ✅ Si la combinación ya existe, actualizar la cantidad
+                return new Promise((resolve, reject) => {
+                  db.run("UPDATE stock_items SET cantidad = ? WHERE menu_item_id = ? AND talle = ? AND color = ?", 
+                    [cantidad, id, talle, color], function (err) {
+                      if (err) return reject(err);
+                      resolve();
+                    });
+                });
+              } else {
+                // ✅ Si la combinación no existe, insertarla
+                return new Promise((resolve, reject) => {
+                  db.run("INSERT INTO stock_items (menu_item_id, talle, color, cantidad) VALUES (?, ?, ?, ?)", 
+                    [id, talle, color, cantidad], function (err) {
+                      if (err) return reject(err);
+                      resolve();
+                    });
+                });
+              }
+            });
+
+            // ✅ Si algún stock tiene cantidad 0, eliminarlo
+            parsedStock.forEach(({ talle, color, cantidad }) => {
+              if (cantidad === 0) {
+                db.run("DELETE FROM stock_items WHERE menu_item_id = ? AND talle = ? AND color = ?", 
+                  [id, talle, color]);
+              }
+            });
+
+            Promise.all(updateStockPromises)
+              .then(() => {
+                db.run("COMMIT", (err) => {
+                  if (err) {
+                    return res.status(500).json({ error: err.message });
+                  }
+
+                  // ✅ Si hay una nueva imagen, eliminar la anterior (excepto si son iguales)
+                  if (req.file && oldImgUrl && newImgUrl !== oldImgUrl) {
+                    const fullPath = path.join(__dirname, "public", oldImgUrl);
+                    fs.unlink(fullPath, (err) => {
+                      if (err) console.error("Error al eliminar la imagen antigua:", err);
+                    });
+                  }
+
+                  res.json({ success: true, img_url: newImgUrl });
+                });
+              })
+              .catch((err) => {
+                db.run("ROLLBACK");
+                res.status(500).json({ error: err.message });
+              });
+          });
+        }
+      );
+    });
+  });
+});
+
+
+baseRouter.delete('/api/menu/:id', (req, res) => {
+  const db = ensureDatabaseConnection();
+  const { id } = req.params;
+
+  db.get('SELECT img_url FROM menu_items WHERE id = ?', [id], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    if (!row) {
+      return res.status(404).json({ error: "Producto no encontrado." });
+    }
+
+    db.run('DELETE FROM stock_items WHERE menu_item_id = ?', [id], function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      db.run('DELETE FROM menu_items WHERE id = ?', [id], function (err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        if (this.changes === 0) {
+          return res.status(404).json({ error: "Producto no encontrado." });
+        }
+
+        // ✅ Verificar si hay imagen asociada antes de intentar eliminarla
+        if (row.img_url) {
+          const imagePath = path.join(__dirname, 'public', 'img', path.basename(row.img_url)); // 🔥 Asegura la ruta correcta
+
+          fs.access(imagePath, fs.constants.F_OK, (err) => {
+            if (!err) {
+              fs.unlink(imagePath, (err) => {
+                if (err) {
+                  console.error("❌ Error al eliminar la imagen:", err);
+                  return res.status(500).json({ error: "Producto eliminado, pero la imagen no pudo ser eliminada." });
+                }
+                console.log(`✅ Imagen eliminada correctamente: ${imagePath}`);
+                res.json({ deleted: true }); // 🔥 Solo respondemos después de eliminar la imagen correctamente
+              });
+            } else {
+              console.warn("⚠️ La imagen no existe en la carpeta:", imagePath);
+              res.json({ deleted: true }); // 🔥 Si no existe, igual confirmamos que el producto fue eliminado
+            }
+          });
+
+        } else {
+          res.json({ deleted: true }); // ✅ Si no hay imagen, simplemente confirmamos la eliminación
+        }
+      });
+    });
+  });
+});
 app.use('/la-barberia-77', baseRouter);
 
 // Luego sirve el contenido estático
