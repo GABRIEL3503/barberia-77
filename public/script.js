@@ -354,34 +354,37 @@ document.addEventListener("DOMContentLoaded", function () {
   
     function handleOnEnd(evt, container, type) {
       if (!sortableEnabled) return;
-  
+    
       let rawItems = [];
+    
       if (type === 'items') {
-        rawItems = Array.from(container.querySelectorAll('.contenedor-items')).map(item => ({
+        // 🔥 Buscar solo contenedores de items hijos directos
+        rawItems = Array.from(container.querySelectorAll(':scope > .contenedor-items')).map(item => ({
           id: Number(item.dataset.id),
           element: item
         }));
       } else if (type === 'sections') {
-        rawItems = Array.from(container.querySelectorAll('.menu-section')).map(section => ({
+        // 🔥 Buscar solo secciones hijas directas
+        rawItems = Array.from(container.querySelectorAll(':scope > .menu-section')).map(section => ({
           id: Number(section.dataset.id),
           element: section
         }));
       }
-  
+    
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       const items = validItems.map((item, index) => ({
         id: item.id,
         position: index
       }));
-  
+    
       if (items.length === 0) {
-        console.warn(`[handleOnEnd] No se encontraron items válidos para ${type}.`);
+        console.warn(`[handleOnEnd] No se encontraron ${type} válidos.`);
         return;
       }
-  
+    
       let apiEndpoint = '';
       let bodyData = {};
-  
+    
       if (type === 'sections') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items };
@@ -389,10 +392,9 @@ document.addEventListener("DOMContentLoaded", function () {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
       }
-      
-  
+    
       console.log(`[handleOnEnd] Enviando a ${apiEndpoint}`, bodyData);
-  
+    
       fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
@@ -401,10 +403,17 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         body: JSON.stringify(bodyData)
       })
-      .then(res => res.json())
+      .then(async res => {
+        const text = await res.text();
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+        return JSON.parse(text);
+      })
       .then(data => console.log(`${type} ordenados correctamente`, data))
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
+    
   }
   
   makeMenuSortable();
