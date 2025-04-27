@@ -512,7 +512,7 @@ menuData.forEach(item => {
       tipo: item.tipo,
       parent_group: item.parent_group,
       items: [],
-      section_position: item.section_position || 0 // 👈 agregamos esto!!
+      section_position: Number.isInteger(item.section_position) ? item.section_position : 0
     };
   }
   sectionsMap[item.section_id].items.push(item);
