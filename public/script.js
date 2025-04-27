@@ -511,113 +511,107 @@ document.addEventListener("DOMContentLoaded", function () {
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
+// File: renderMenuItems.js
 
-  function renderMenuItems(menuData) {
-    const container = document.querySelector('.container');
-    container.querySelectorAll('.menu-section').forEach(section => section.remove());
-    container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
-  
-    const isAuthenticated = !!localStorage.getItem('jwt_la-barberia-77');
-  
-    const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
-      const groupContainer = document.createElement('div');
-      groupContainer.className = 'menu-group';
-      groupContainer.setAttribute('data-group', group.id);
-  
-      const parallaxHTML = `
-        <div class="parallax-container">
-          <img src="img/Paralax ${group.id} frase.webp">
-          <h3 class="parallax-text"></h3>
-        </div>
-      `;
-  
-      groupContainer.innerHTML = `
-        <span class="group-header">
-          ${group.id === 'barberia' || group.id === 'tienda' ? parallaxHTML : ''}
-          <h1 class="group-title">${group.title}</h1>
-          <p class="group-description">${group.description}</p>
-        </span>
-      `;
-  
-      container.appendChild(groupContainer);
-      containers[group.id] = groupContainer;
-      return containers;
-    }, {});
-  
-    const sectionsMap = {};
-    menuData.forEach(item => {
-      if (!sectionsMap[item.section_id]) {
-        sectionsMap[item.section_id] = {
-          section_id: item.section_id,
-          tipo: item.tipo,
-          parent_group: item.parent_group,
-          items: [],
-          section_position: Number.isInteger(item.section_position) ? item.section_position : (item.position || 0)
-        };
-      }
-      sectionsMap[item.section_id].items.push(item);
-    });
-  
-    // 🔥 2. Ordenar correctamente las secciones usando section_position o position
-    const orderedSections = Object.values(sectionsMap).sort((a, b) => a.section_position - b.section_position);
-  
-    // 🔥 3. Renderizar secciones ordenadas
-    orderedSections.forEach(section => {
-      const { parent_group, tipo, items } = section;
-      const parent = parentContainers[parent_group || 'barberia'];
-  
-      const menuSection = document.createElement('div');
-      menuSection.className = 'menu-section';
-      menuSection.setAttribute('data-id', section.section_id);
-      menuSection.setAttribute('data-type', tipo);
-      menuSection.innerHTML = `
-        <h2 class="section-title">
-          <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
-        </h2>
-      `;
-      parent.appendChild(menuSection);
-  
-      // 🔥 4. Ordenar los items dentro de la sección por position
-      const sortedItems = items.sort((a, b) => a.position - b.position);
-  
-      sortedItems.forEach(item => {
-        const newItem = createMenuItem(item);
-        newItem.dataset.id = item.id;
-        newItem.dataset.hidden = item.hidden;
-  
-        const menuItem = newItem.querySelector('.menu-item');
-        const buttonsContainer = document.createElement('span');
-        buttonsContainer.className = 'admin-buttons-container';
-  
-        const editButton = menuItem.querySelector('.edit-button');
-        if (editButton) buttonsContainer.appendChild(editButton);
-  
-        const hideShowButton = document.createElement('button');
-        hideShowButton.className = 'hide-show-button auth-required';
-        hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
-        hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
-        buttonsContainer.appendChild(hideShowButton);
-  
-        menuItem.appendChild(buttonsContainer);
-  
-        if (item.hidden) {
-          newItem.style.display = isAuthenticated ? 'block' : 'none';
-          newItem.style.opacity = isAuthenticated ? '0.3' : '1';
-        }
-  
-        const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
-        menuSection.insertBefore(newItem, afterTitle || null);
-      });
-    });
-  
-    checkAuthentication();
-  
-    // 🔥 Reubicar grupo estático al fondo
-    const staticGroup = container.querySelector('.menu-group.static-group');
-    if (staticGroup) {
-      container.appendChild(staticGroup);
+function renderMenuItems(menuData, sectionsData) {
+  const container = document.querySelector('.container');
+
+  container.querySelectorAll('.menu-section').forEach(section => section.remove());
+  container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
+
+  const isAuthenticated = !!localStorage.getItem('jwt_la-barberia-77');
+
+  const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
+    const groupContainer = document.createElement('div');
+    groupContainer.className = 'menu-group';
+    groupContainer.setAttribute('data-group', group.id);
+
+    const parallaxHTML = `
+      <div class="parallax-container">
+        <img src="img/Paralax ${group.id} frase.webp">
+        <h3 class="parallax-text"></h3>
+      </div>
+    `;
+
+    groupContainer.innerHTML = `
+      <span class="group-header">
+        ${group.id === 'barberia' || group.id === 'tienda' ? parallaxHTML : ''}
+        <h1 class="group-title">${group.title}</h1>
+        <p class="group-description">${group.description}</p>
+      </span>
+    `;
+
+    container.appendChild(groupContainer);
+    containers[group.id] = groupContainer;
+    return containers;
+  }, {});
+
+  const itemsBySection = {};
+  menuData.forEach(item => {
+    if (!itemsBySection[item.section_id]) {
+      itemsBySection[item.section_id] = [];
     }
+    itemsBySection[item.section_id].push(item);
+  });
+
+  const orderedSections = sectionsData.sort((a, b) => a.position - b.position);
+
+  orderedSections.forEach(section => {
+    const { id: sectionId, nombre: tipo, parent_group } = section;
+    const parent = parentContainers[parent_group || 'barberia'];
+    if (!parent) return;
+
+    const menuSection = document.createElement('div');
+    menuSection.className = 'menu-section';
+    menuSection.setAttribute('data-id', sectionId);
+    menuSection.setAttribute('data-type', tipo);
+    menuSection.innerHTML = `
+      <h2 class="section-title">
+        <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
+      </h2>
+    `;
+    parent.appendChild(menuSection);
+
+    const sectionItems = (itemsBySection[sectionId] || []).sort((a, b) => a.position - b.position);
+
+    sectionItems.forEach(item => {
+      const newItem = createMenuItem(item);
+      newItem.dataset.id = item.id;
+      newItem.dataset.hidden = item.hidden;
+
+      const menuItem = newItem.querySelector('.menu-item');
+      const buttonsContainer = document.createElement('span');
+      buttonsContainer.className = 'admin-buttons-container';
+
+      const editButton = menuItem.querySelector('.edit-button');
+      if (editButton) buttonsContainer.appendChild(editButton);
+
+      const hideShowButton = document.createElement('button');
+      hideShowButton.className = 'hide-show-button auth-required';
+      hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
+      hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
+      buttonsContainer.appendChild(hideShowButton);
+
+      menuItem.appendChild(buttonsContainer);
+
+      if (item.hidden) {
+        newItem.style.display = isAuthenticated ? 'block' : 'none';
+        newItem.style.opacity = isAuthenticated ? '0.3' : '1';
+      }
+
+      const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
+      menuSection.insertBefore(newItem, afterTitle || null);
+    });
+  });
+
+  checkAuthentication();
+
+  const staticGroup = container.querySelector('.menu-group.static-group');
+  if (staticGroup) {
+    container.appendChild(staticGroup);
   }
+}
+
   
   
   
