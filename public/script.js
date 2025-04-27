@@ -373,7 +373,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       const items = validItems.map((item, index) => ({
         id: item.id,
-        position: (validItems.length - 1 - index) // 🔥 invertido
+        position: (type === 'items' ? validItems.length - 1 - index : index)  // 🔥 SOLO ítems invertimos
       }));
     
       if (items.length === 0) {
@@ -406,6 +406,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(data => console.log(`${type} ordenados correctamente`, data))
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
+    
     
     
   }
