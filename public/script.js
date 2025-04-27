@@ -503,8 +503,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-    // 🔥 1. Agrupar items por sección_id
-// 🔥 1. Agrupar items por sección_id
+
 const sectionsMap = {};
 menuData.forEach(item => {
   if (!sectionsMap[item.section_id]) {
@@ -513,7 +512,7 @@ menuData.forEach(item => {
       tipo: item.tipo,
       parent_group: item.parent_group,
       items: [],
-      section_position: item.section_position || 0 // <--- Agregá esto
+      section_position: item.section_position || 0 // 👈 agregamos esto!!
     };
   }
   sectionsMap[item.section_id].items.push(item);
@@ -521,8 +520,9 @@ menuData.forEach(item => {
 
 // 🔥 2. Ordenar secciones por section_position
 const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-  return a.section_position - b.section_position;
+  return a.section_position - b.section_position; // 👈 acá usamos section_position!!
 });
+
 
 
   
