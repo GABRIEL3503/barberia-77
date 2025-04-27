@@ -407,21 +407,25 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(sectionData => {
               const sections = sectionData.data;
               const groups = document.querySelectorAll('.menu-group');
-    
+        
+              // Limpiar secciones actuales
               groups.forEach(group => {
-                const parentId = group.getAttribute('data-group');
-                const matchingSections = sections
-                  .filter(sec => sec.parent_group === parentId)
-                  .sort((a, b) => a.position - b.position);
-    
-                matchingSections.forEach(sec => {
-                  const el = group.querySelector(`.menu-section[data-id='${sec.id}']`);
-                  if (el) group.appendChild(el);
-                });
+                const groupSections = group.querySelectorAll('.menu-section');
+                groupSections.forEach(section => group.removeChild(section));
+              });
+        
+              // Insertar secciones en su grupo correcto y ordenadas
+              sections.sort((a, b) => a.position - b.position).forEach(sec => {
+                const group = document.querySelector(`.menu-group[data-group="${sec.parent_group}"]`);
+                if (!group) return;
+        
+                const el = document.querySelector(`.menu-section[data-id='${sec.id}']`);
+                if (el) group.appendChild(el);
               });
             })
             .catch(err => console.error('Error actualizando orden de secciones:', err));
         }
+        
       })
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
