@@ -595,20 +595,41 @@ document.addEventListener("DOMContentLoaded", function () {
     }, {});
   
     const sections = {};
-    menuData.sort((a, b) => a.position - b.position);
-
+  
+    // 🔥 Agrupar items por sección y ordenar primero las secciones por position
+    const groupedSections = {};
+  
     menuData.forEach(item => {
       const parentGroup = item.parent_group || 'barberia';
       const sectionKey = `${parentGroup}-${item.tipo}`;
   
+      if (!groupedSections[sectionKey]) {
+        groupedSections[sectionKey] = {
+          section_id: item.section_id,
+          parentGroup,
+          tipo: item.tipo,
+          items: []
+        };
+      }
+  
+      groupedSections[sectionKey].items.push(item);
+    });
+  
+    // 🔥 🔥 🔥 Ahora ordenar secciones por section_id o position si lo tenés (esto depende de lo que tengas disponible)
+    const orderedSections = Object.values(groupedSections).sort((a, b) => a.section_id - b.section_id);
+  
+    orderedSections.forEach(sectionData => {
+      const { parentGroup, tipo, items } = sectionData;
+      const sectionKey = `${parentGroup}-${tipo}`;
+  
       if (!sections[sectionKey]) {
         const menuSection = document.createElement('div');
         menuSection.className = 'menu-section';
-        menuSection.setAttribute('data-id', item.section_id);
-        menuSection.setAttribute('data-type', item.tipo);
+        menuSection.setAttribute('data-type', tipo);
+  
         menuSection.innerHTML = `
           <h2 class="section-title">
-            <span>~ ${capitalizeFirstLetter(item.tipo.toLowerCase())} ~</span>
+            <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
           </h2>
         `;
   
@@ -616,72 +637,50 @@ document.addEventListener("DOMContentLoaded", function () {
         parentContainers[parentGroup].appendChild(menuSection);
       }
   
-      const newItem = createMenuItem(item);
-      newItem.dataset.id = item.id;
-      newItem.dataset.hidden = item.hidden;
-  
-      const menuItem = newItem.querySelector('.menu-item');
-  
-      const buttonsContainer = document.createElement('span');
-      buttonsContainer.className = 'admin-buttons-container';
-  
-      const editButton = menuItem.querySelector('.edit-button');
-      if (editButton) buttonsContainer.appendChild(editButton);
-  
-      const hideShowButton = document.createElement('button');
-      hideShowButton.className = 'hide-show-button auth-required';
-      hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
-      hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
-      buttonsContainer.appendChild(hideShowButton);
-  
-      menuItem.appendChild(buttonsContainer);
-  
-      if (item.hidden) {
-        newItem.style.display = isAuthenticated ? 'block' : 'none';
-        newItem.style.opacity = isAuthenticated ? '0.3' : '1';
-      }
-  
       const section = sections[sectionKey];
       const afterTitle = section.querySelector('h2.section-title')?.nextSibling;
-      section.insertBefore(newItem, afterTitle || null);
+  
+      // 🔥 ordenar los items internos por position
+      items.sort((a, b) => a.position - b.position);
+  
+      items.forEach(item => {
+        const newItem = createMenuItem(item);
+        newItem.dataset.id = item.id;
+        newItem.dataset.hidden = item.hidden;
+  
+        const menuItem = newItem.querySelector('.menu-item');
+        const buttonsContainer = document.createElement('span');
+        buttonsContainer.className = 'admin-buttons-container';
+  
+        const editButton = menuItem.querySelector('.edit-button');
+        if (editButton) buttonsContainer.appendChild(editButton);
+  
+        const hideShowButton = document.createElement('button');
+        hideShowButton.className = 'hide-show-button auth-required';
+        hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
+        hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
+        buttonsContainer.appendChild(hideShowButton);
+  
+        menuItem.appendChild(buttonsContainer);
+  
+        if (item.hidden) {
+          newItem.style.display = isAuthenticated ? 'block' : 'none';
+          newItem.style.opacity = isAuthenticated ? '0.3' : '1';
+        }
+  
+        section.insertBefore(newItem, afterTitle || null);
+      });
     });
   
     checkAuthentication();
   
-    const tipo = localStorage.getItem('lastCreatedItemTipo');
-    const grupo = localStorage.getItem('lastCreatedItemGrupo');
-  
-    if (tipo && grupo) {
-      const targetSelector = `.menu-group[data-group="${grupo}"] .menu-section[data-type="${tipo}"]`;
-  
-      const waitForOffset = (callback) => {
-        const section = document.querySelector(targetSelector);
-        if (section && section.offsetTop > 0) {
-          window.scrollTo({
-            top: section.offsetTop - 100,
-            behavior: 'auto'
-          });
-          localStorage.removeItem('lastCreatedItemTipo');
-          localStorage.removeItem('lastCreatedItemGrupo');
-          if (callback) callback();
-        } else {
-          requestAnimationFrame(() => waitForOffset(callback));
-        }
-      };
-  
-      waitForOffset(() => {
-        if (typeof AOS !== 'undefined') {
-          AOS.refresh();
-        }
-      });
-    }
-  
-    // 🧩 Reubicar grupo estático al fondo siempre
+    // 🧩 Reubicar grupo estático al fondo
     const staticGroup = container.querySelector('.menu-group.static-group');
     if (staticGroup) {
       container.appendChild(staticGroup);
     }
   }
+  
   
   
 
