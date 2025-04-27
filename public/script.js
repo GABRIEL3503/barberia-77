@@ -565,17 +565,16 @@ document.addEventListener("DOMContentLoaded", function () {
       groupContainer.className = 'menu-group';
       groupContainer.setAttribute('data-group', group.id);
   
-      const hasParallax = group.id === 'barberia' || group.id === 'tienda';
-      const parallaxHTML = hasParallax ? `
+      const parallaxHTML = `
         <div class="parallax-container">
           <img src="img/Paralax ${group.id} frase.webp">
           <h3 class="parallax-text"></h3>
         </div>
-      ` : '';
+      `;
   
       groupContainer.innerHTML = `
         <span class="group-header">
-          ${parallaxHTML}
+          ${group.id === 'barberia' || group.id === 'tienda' ? parallaxHTML : ''}
           <h1 class="group-title">${group.title}</h1>
           <p class="group-description">${group.description}</p>
         </span>
@@ -586,44 +585,47 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-    menuData.sort((a, b) => a.position - b.position);
-  
-    const groupedSections = {};
-  
+    // 🔥 1. Agrupar items por sección_id
+    const sectionsMap = {};
     menuData.forEach(item => {
-      const parentGroup = item.parent_group || 'barberia';
-      const sectionKey = `${parentGroup}-${item.tipo}`;
-  
-      if (!groupedSections[sectionKey]) {
-        groupedSections[sectionKey] = {
-          parentGroup,
-          tipo: item.tipo,
+      if (!sectionsMap[item.section_id]) {
+        sectionsMap[item.section_id] = {
           section_id: item.section_id,
+          tipo: item.tipo,
+          parent_group: item.parent_group,
           items: []
         };
       }
-      groupedSections[sectionKey].items.push(item);
+      sectionsMap[item.section_id].items.push(item);
     });
   
-    const orderedSections = Object.values(groupedSections).sort((a, b) => a.section_id - b.section_id);
+    // 🔥 2. Ordenar secciones por primer `position` de sus items
+    const orderedSections = Object.values(sectionsMap).sort((a, b) => {
+      const aPos = a.items[0]?.position ?? 0;
+      const bPos = b.items[0]?.position ?? 0;
+      return aPos - bPos;
+    });
   
-    orderedSections.forEach(sectionData => {
-      const { parentGroup, tipo, items } = sectionData;
+    // 🔥 3. Renderizar secciones ordenadas
+    orderedSections.forEach(section => {
+      const { parent_group, tipo, items } = section;
+      const parent = parentContainers[parent_group || 'barberia'];
   
       const menuSection = document.createElement('div');
       menuSection.className = 'menu-section';
-      menuSection.setAttribute('data-id', sectionData.section_id);
+      menuSection.setAttribute('data-id', section.section_id);
       menuSection.setAttribute('data-type', tipo);
-  
       menuSection.innerHTML = `
         <h2 class="section-title">
           <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
         </h2>
       `;
+      parent.appendChild(menuSection);
   
-      parentContainers[parentGroup].appendChild(menuSection);
+      // 🔥 4. Ordenar los items dentro de la sección
+      const sortedItems = items.sort((a, b) => a.position - b.position);
   
-      items.forEach(item => {
+      sortedItems.forEach(item => {
         const newItem = createMenuItem(item);
         newItem.dataset.id = item.id;
         newItem.dataset.hidden = item.hidden;
@@ -655,7 +657,7 @@ document.addEventListener("DOMContentLoaded", function () {
   
     checkAuthentication();
   
-    // 🧩 Reubicar grupo estático al fondo
+    // 🔥 Reubicar grupo estático al fondo
     const staticGroup = container.querySelector('.menu-group.static-group');
     if (staticGroup) {
       container.appendChild(staticGroup);
