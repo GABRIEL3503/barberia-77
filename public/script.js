@@ -391,6 +391,8 @@ document.addEventListener("DOMContentLoaded", function () {
             scrollSensitivity: 100, // 🔹 Ajusta la sensibilidad
             scrollSpeed: 10, // 🔹 Controla la velocidad
             group: "items",
+            draggable: '.contenedor-items', // 🔥 ESTA LÍNEA ES CLAVE
+
             onStart: evt => {
               if (!sortableEnabled) {
                 evt.preventDefault();
