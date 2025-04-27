@@ -406,18 +406,27 @@ document.addEventListener("DOMContentLoaded", function () {
     function handleOnEnd(evt, container, type) {
       if (!sortableEnabled) return;
     
-      let selector = '.menu-item';
-      if (type === 'item') {
-        selector = ':scope > .contenedor-items > .menu-item'; 
-        // 🔥 🔥 SOLO los items hijos directos (no nietos)
-      }
+      let rawItems = [];
     
-      let rawItems = Array.from(container.querySelectorAll(selector))
-        .filter(item => item.dataset.subelement !== "0")
-        .map(item => ({
-          id: Number(item.dataset.id),
-          element: item
-        }));
+      if (type === 'item') {
+        const contenedorItems = container.querySelector('.contenedor-items');
+        if (contenedorItems) {
+          rawItems = Array.from(contenedorItems.children)
+            .filter(child => child.classList.contains('menu-item'))
+            .filter(item => item.dataset.subelement !== "0")
+            .map(item => ({
+              id: Number(item.dataset.id),
+              element: item
+            }));
+        }
+      } else {
+        rawItems = Array.from(container.querySelectorAll('.menu-item'))
+          .filter(item => item.dataset.subelement !== "0")
+          .map(item => ({
+            id: Number(item.dataset.id),
+            element: item
+          }));
+      }
     
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       let items = validItems.map((item, index) => ({
@@ -455,7 +464,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
       console.log("[handleOnEnd] Enviando a API:", bodyData);
       console.log("Items enviados:", items);
-
+    
       fetch(apiEndpoint, {
         method: 'PUT',
         headers: {
@@ -476,6 +485,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error(`Error al ordenar ${type}:`, error);
       });
     }
+    
     
     
     
