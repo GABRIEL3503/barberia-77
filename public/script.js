@@ -471,13 +471,22 @@ document.addEventListener("DOMContentLoaded", function () {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  function renderMenuItems(menuData) {
+  async function renderMenuItems(menuData) {
     const container = document.querySelector('.container');
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
     container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
   
     const isAuthenticated = !!localStorage.getItem('jwt_la-barberia-77');
   
+    // 🔥 1. Cargamos posiciones de secciones desde la API de secciones
+    const sectionsResponse = await fetch('https://octopus-app.com.ar/la-barberia-77/api/sections');
+    const sectionsData = await sectionsResponse.json();
+    const sectionPositions = {};
+    sectionsData.data.forEach(section => {
+      sectionPositions[section.id] = section.position;
+    });
+  
+    // 🔥 2. Creamos los grupos
     const parentContainers = PARENT_GROUPS.reduce((containers, group) => {
       const groupContainer = document.createElement('div');
       groupContainer.className = 'menu-group';
@@ -503,30 +512,25 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-
-const sectionsMap = {};
-menuData.forEach(item => {
-  if (!sectionsMap[item.section_id]) {
-    sectionsMap[item.section_id] = {
-      section_id: item.section_id,
-      tipo: item.tipo,
-      parent_group: item.parent_group,
-      items: [],
-      section_position: item.section_position || 0 // 👈 agregamos esto!!
-    };
-  }
-  sectionsMap[item.section_id].items.push(item);
-});
-
-// 🔥 2. Ordenar secciones por section_position
-const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-  return a.section_position - b.section_position; // 👈 acá usamos section_position!!
-});
-
-
-
+    // 🔥 3. Agrupamos items en secciones
+    const sectionsMap = {};
+    menuData.forEach(item => {
+      if (!sectionsMap[item.section_id]) {
+        sectionsMap[item.section_id] = {
+          section_id: item.section_id,
+          tipo: item.tipo,
+          parent_group: item.parent_group,
+          items: [],
+          section_position: sectionPositions[item.section_id] || 0 // 👈 ahora sí tenemos el verdadero `position`
+        };
+      }
+      sectionsMap[item.section_id].items.push(item);
+    });
   
-    // 🔥 3. Renderizar secciones ordenadas
+    // 🔥 4. Ordenamos secciones por su posición real
+    const orderedSections = Object.values(sectionsMap).sort((a, b) => a.section_position - b.section_position);
+  
+    // 🔥 5. Renderizamos
     orderedSections.forEach(section => {
       const { parent_group, tipo, items } = section;
       const parent = parentContainers[parent_group || 'barberia'];
@@ -542,9 +546,8 @@ const orderedSections = Object.values(sectionsMap).sort((a, b) => {
       `;
       parent.appendChild(menuSection);
   
-      // 🔥 4. Ordenar los items dentro de la sección
+      // 🔥 6. Renderizamos los items ordenados
       const sortedItems = items.sort((a, b) => a.position - b.position);
-  
       sortedItems.forEach(item => {
         const newItem = createMenuItem(item);
         newItem.dataset.id = item.id;
@@ -577,17 +580,13 @@ const orderedSections = Object.values(sectionsMap).sort((a, b) => {
   
     checkAuthentication();
   
-    // 🔥 Reubicar grupo estático al fondo
+    // 🔥 Grupo estático al final
     const staticGroup = container.querySelector('.menu-group.static-group');
     if (staticGroup) {
       container.appendChild(staticGroup);
     }
   }
   
-  
-  
-
-
 
   function loadTallesForItem(itemId) {
     fetch(`https://octopus-app.com.ar/la-barberia-77/api/menu/${itemId}/talles`)
