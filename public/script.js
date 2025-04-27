@@ -381,16 +381,13 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
     
-      let apiEndpoint = '';
-      let bodyData = {};
+      let apiEndpoint = type === 'sections' 
+        ? 'https://octopus-app.com.ar/la-barberia-77/api/sections/order'
+        : 'https://octopus-app.com.ar/la-barberia-77/api/menu/order';
     
-      if (type === 'sections') {
-        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
-        bodyData = { sections: items };
-      } else if (type === 'items') {
-        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
-        bodyData = { items: items };
-      }
+      let bodyData = type === 'sections' 
+        ? { sections: items }
+        : { items: items };
     
       fetch(apiEndpoint, {
         method: 'PUT',
@@ -405,13 +402,12 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(`${type} ordenados correctamente`, data);
     
         if (type === 'sections') {
-          // Fetch nuevas posiciones y actualizar solo el orden
           fetch('https://octopus-app.com.ar/la-barberia-77/api/sections')
             .then(res => res.json())
             .then(sectionData => {
               const sections = sectionData.data;
-    
               const groups = document.querySelectorAll('.menu-group');
+    
               groups.forEach(group => {
                 const parentId = group.getAttribute('data-group');
                 const matchingSections = sections
@@ -420,9 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
     
                 matchingSections.forEach(sec => {
                   const el = group.querySelector(`.menu-section[data-id='${sec.id}']`);
-                  if (el) {
-                    group.appendChild(el);
-                  }
+                  if (el) group.appendChild(el);
                 });
               });
             })
