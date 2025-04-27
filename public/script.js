@@ -407,25 +407,38 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(sectionData => {
               const sections = sectionData.data;
         
-              // Primero limpiamos todas las secciones de los grupos
-              const groups = document.querySelectorAll('.menu-group');
-              groups.forEach(group => {
-                const sectionsInGroup = group.querySelectorAll('.menu-section');
-                sectionsInGroup.forEach(section => group.removeChild(section));
+              // 1. Ordenar las secciones por parent_group y luego por position
+              sections.sort((a, b) => {
+                if (a.parent_group === b.parent_group) {
+                  return a.position - b.position;
+                }
+                return a.parent_group.localeCompare(b.parent_group);
               });
         
-              // Ahora insertamos en orden correcto
-              sections
-                .sort((a, b) => a.position - b.position)
-                .forEach(sec => {
-                  const group = document.querySelector(`.menu-group[data-group="${sec.parent_group}"]`);
-                  const el = document.querySelector(`.menu-section[data-id='${sec.id}']`);
-                  if (group && el) {
-                    group.appendChild(el);
-                  } else {
-                    console.warn(`[handleOnEnd] No se encontró elemento para sección id=${sec.id} o grupo=${sec.parent_group}`);
-                  }
-                });
+              // 2. Agrupar los elementos por su parent_group
+              const groupElements = {};
+              document.querySelectorAll('.menu-group').forEach(group => {
+                const parentGroup = group.getAttribute('data-group');
+                groupElements[parentGroup] = group;
+              });
+        
+              // 3. Limpiar las secciones actuales de cada grupo
+              for (const group of Object.values(groupElements)) {
+                const sections = group.querySelectorAll('.menu-section');
+                sections.forEach(section => group.removeChild(section));
+              }
+        
+              // 4. Insertar en el orden correcto
+              sections.forEach(sectionInfo => {
+                const group = groupElements[sectionInfo.parent_group];
+                const sectionEl = document.querySelector(`.menu-section[data-id="${sectionInfo.id}"]`);
+                if (group && sectionEl) {
+                  group.appendChild(sectionEl);
+                } else {
+                  console.warn(`Sección o grupo no encontrado para ID ${sectionInfo.id} / ${sectionInfo.parent_group}`);
+                }
+              });
+        
             })
             .catch(err => console.error('Error actualizando orden de secciones:', err));
         }
