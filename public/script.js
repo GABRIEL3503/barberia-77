@@ -387,10 +387,19 @@ document.addEventListener("DOMContentLoaded", function () {
       if (type === 'sections') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items };
+    
+        const ordered = items
+          .sort((a, b) => a.position - b.position)
+          .map(i => validItems.find(v => v.id === i.id)?.element)
+          .filter(Boolean);
+    
+        ordered.forEach(el => container.appendChild(el));
       } else if (type === 'items') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
       }
+    
+      console.log(`[handleOnEnd] Enviando a ${apiEndpoint}`, bodyData);
     
       fetch(apiEndpoint, {
         method: 'PUT',
@@ -405,28 +414,14 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(`${type} ordenados correctamente`, data);
     
         if (type === 'sections') {
-          // Fetch nuevas posiciones y actualizar solo el orden
-          fetch('https://octopus-app.com.ar/la-barberia-77/api/sections')
+          fetch('https://octopus-app.com.ar/la-barberia-77/api/menu')
             .then(res => res.json())
-            .then(sectionData => {
-              const sections = sectionData.data;
-    
-              const groups = document.querySelectorAll('.menu-group');
-              groups.forEach(group => {
-                const parentId = group.getAttribute('data-group');
-                const matchingSections = sections
-                  .filter(sec => sec.parent_group === parentId)
-                  .sort((a, b) => a.position - b.position);
-    
-                matchingSections.forEach(sec => {
-                  const el = group.querySelector(`.menu-section[data-id='${sec.id}']`);
-                  if (el) {
-                    group.appendChild(el);
-                  }
-                });
-              });
+            .then(menuResponse => {
+              const freshMenuData = menuResponse.data;
+              localStorage.setItem('menuData', JSON.stringify(freshMenuData));
+              renderMenuItems(freshMenuData);
             })
-            .catch(err => console.error('Error actualizando orden de secciones:', err));
+            .catch(err => console.error('Error actualizando menú después de mover sección:', err));
         }
       })
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
@@ -529,22 +524,28 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-    const sectionsMap = {};
-    menuData.forEach(item => {
-      if (!sectionsMap[item.section_id]) {
-        sectionsMap[item.section_id] = {
-          section_id: item.section_id,
-          tipo: item.tipo,
-          parent_group: item.parent_group,
-          items: [],
-          section_position: Number.isInteger(item.section_position) ? item.section_position : (item.position || 0)
-        };
-      }
-      sectionsMap[item.section_id].items.push(item);
-    });
-  
-    // 🔥 2. Ordenar correctamente las secciones usando section_position o position
-    const orderedSections = Object.values(sectionsMap).sort((a, b) => a.section_position - b.section_position);
+
+const sectionsMap = {};
+menuData.forEach(item => {
+  if (!sectionsMap[item.section_id]) {
+    sectionsMap[item.section_id] = {
+      section_id: item.section_id,
+      tipo: item.tipo,
+      parent_group: item.parent_group,
+      items: [],
+      section_position: Number.isInteger(item.section_position) ? item.section_position : 0
+    };
+  }
+  sectionsMap[item.section_id].items.push(item);
+});
+
+// 🔥 2. Ordenar secciones por section_position
+const orderedSections = Object.values(sectionsMap).sort((a, b) => {
+  return a.section_position - b.section_position; // 👈 acá usamos section_position!!
+});
+
+
+
   
     // 🔥 3. Renderizar secciones ordenadas
     orderedSections.forEach(section => {
@@ -562,7 +563,7 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
       parent.appendChild(menuSection);
   
-      // 🔥 4. Ordenar los items dentro de la sección por position
+      // 🔥 4. Ordenar los items dentro de la sección
       const sortedItems = items.sort((a, b) => a.position - b.position);
   
       sortedItems.forEach(item => {
