@@ -512,8 +512,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 // 📂 File: renderMenuItems.js
-
-function renderMenuItems(menuData) {
+async function renderMenuItems(menuData) {
   const container = document.querySelector('.container');
   container.querySelectorAll('.menu-section').forEach(section => section.remove());
   container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
@@ -553,10 +552,25 @@ function renderMenuItems(menuData) {
         tipo: item.tipo,
         parent_group: item.parent_group,
         items: [],
-        position: item.position || 0 // 🔥 usar solo `position`
+        position: 0 // default
       };
     }
     sectionsMap[item.section_id].items.push(item);
+  });
+
+  let sectionsPositionsMap = {};
+  try {
+    const response = await fetch('https://octopus-app.com.ar/la-barberia-77/api/sections');
+    const data = await response.json();
+    data.data.forEach(section => {
+      sectionsPositionsMap[section.id] = section.position;
+    });
+  } catch (error) {
+    console.error('Error fetching sections positions:', error);
+  }
+
+  Object.values(sectionsMap).forEach(section => {
+    section.position = sectionsPositionsMap[section.section_id] || 9999;
   });
 
   const orderedSections = Object.values(sectionsMap).sort((a, b) => a.position - b.position);
