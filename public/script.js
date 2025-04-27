@@ -374,8 +374,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const validItems = rawItems.filter(item => Number.isInteger(item.id));
       const items = validItems.map((item, index) => ({
         id: item.id,
-        position: index
+        position: validItems.length - 1 - index // 🛠️ inverso
       }));
+      
     
       if (items.length === 0) {
         console.warn(`[handleOnEnd] No se encontraron ${type} válidos.`);
