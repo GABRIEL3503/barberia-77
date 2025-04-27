@@ -579,26 +579,43 @@ baseRouter.put('/api/sections/order', (req, res) => {
 
 
 baseRouter.put('/api/menu/order', (req, res) => {
-  const db = ensureDatabaseConnection(); // Garantizar la conexión
+  const db = ensureDatabaseConnection();
+  const items = req.body.items;
 
-  const items = req.body.items; // Array de objetos con {id, position}
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: "Se esperaba un array 'items'." });
+  }
 
   db.serialize(() => {
     db.run('BEGIN TRANSACTION');
     const stmt = db.prepare('UPDATE menu_items SET position = ? WHERE id = ?');
+
+    let pending = items.length;
+
     items.forEach(item => {
-      stmt.run(item.position, item.id);
-    });
-    stmt.finalize();
-    db.run('COMMIT', err => {
-      if (err) {
-        console.error("Error al ejecutar la transacción:", err);
-        return res.status(500).json({ error: err.message });
-      }
-      res.json({ success: true });
+      stmt.run(item.position, item.id, function (err) {
+        if (err) {
+          console.error(`❌ Error al actualizar item ${item.id}:`, err);
+        }
+        // 🔥 Ya NO chequeamos si this.changes === 0, seguimos siempre.
+        
+        pending--;
+        if (pending === 0) { // Último item
+          stmt.finalize();
+          db.run('COMMIT', err => {
+            if (err) {
+              console.error("❌ Error en commit:", err);
+              return res.status(500).json({ error: err.message });
+            }
+            console.log("✅ Todos los productos actualizados correctamente.");
+            res.json({ success: true });
+          });
+        }
+      });
     });
   });
 });
+
 
 
 
