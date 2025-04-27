@@ -595,7 +595,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }, {});
   
     const sections = {};
-  
+    menuData.sort((a, b) => a.position - b.position);
+
     menuData.forEach(item => {
       const parentGroup = item.parent_group || 'barberia';
       const sectionKey = `${parentGroup}-${item.tipo}`;
