@@ -383,12 +383,13 @@ document.addEventListener("DOMContentLoaded", function () {
       let bodyData = {};
   
       if (type === 'sections') {
-        apiEndpoint = `/api/sections/order`;
+        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items };
       } else if (type === 'items') {
-        apiEndpoint = `/api/menu/order`;
+        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
       }
+      
   
       console.log(`[handleOnEnd] Enviando a ${apiEndpoint}`, bodyData);
   
