@@ -406,22 +406,26 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(sectionData => {
               const sections = sectionData.data;
+        
+              // Primero limpiamos todas las secciones de los grupos
               const groups = document.querySelectorAll('.menu-group');
-        
-              // Limpiar secciones actuales
               groups.forEach(group => {
-                const groupSections = group.querySelectorAll('.menu-section');
-                groupSections.forEach(section => group.removeChild(section));
+                const sectionsInGroup = group.querySelectorAll('.menu-section');
+                sectionsInGroup.forEach(section => group.removeChild(section));
               });
         
-              // Insertar secciones en su grupo correcto y ordenadas
-              sections.sort((a, b) => a.position - b.position).forEach(sec => {
-                const group = document.querySelector(`.menu-group[data-group="${sec.parent_group}"]`);
-                if (!group) return;
-        
-                const el = document.querySelector(`.menu-section[data-id='${sec.id}']`);
-                if (el) group.appendChild(el);
-              });
+              // Ahora insertamos en orden correcto
+              sections
+                .sort((a, b) => a.position - b.position)
+                .forEach(sec => {
+                  const group = document.querySelector(`.menu-group[data-group="${sec.parent_group}"]`);
+                  const el = document.querySelector(`.menu-section[data-id='${sec.id}']`);
+                  if (group && el) {
+                    group.appendChild(el);
+                  } else {
+                    console.warn(`[handleOnEnd] No se encontró elemento para sección id=${sec.id} o grupo=${sec.parent_group}`);
+                  }
+                });
             })
             .catch(err => console.error('Error actualizando orden de secciones:', err));
         }
