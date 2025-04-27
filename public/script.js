@@ -511,17 +511,19 @@ document.addEventListener("DOMContentLoaded", function () {
           section_id: item.section_id,
           tipo: item.tipo,
           parent_group: item.parent_group,
-          items: []
+          items: [],
+          minPosition: item.position
         };
       }
       sectionsMap[item.section_id].items.push(item);
+      if (item.position < sectionsMap[item.section_id].minPosition) {
+        sectionsMap[item.section_id].minPosition = item.position;
+      }
     });
   
-    // 🔥 2. Ordenar secciones por primer `position` de sus items
+    // 🔥 2. Ordenar secciones manualmente por `minPosition`
     const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-      const aPos = a.items[0]?.position ?? 0;
-      const bPos = b.items[0]?.position ?? 0;
-      return aPos - bPos;
+      return (a.minPosition || 0) - (b.minPosition || 0);
     });
   
     // 🔥 3. Renderizar secciones ordenadas
@@ -568,8 +570,7 @@ document.addEventListener("DOMContentLoaded", function () {
           newItem.style.opacity = isAuthenticated ? '0.3' : '1';
         }
   
-        const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
-        menuSection.insertBefore(newItem, afterTitle || null);
+        menuSection.appendChild(newItem);
       });
     });
   
