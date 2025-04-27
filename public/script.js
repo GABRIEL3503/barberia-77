@@ -524,28 +524,22 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-
-const sectionsMap = {};
-menuData.forEach(item => {
-  if (!sectionsMap[item.section_id]) {
-    sectionsMap[item.section_id] = {
-      section_id: item.section_id,
-      tipo: item.tipo,
-      parent_group: item.parent_group,
-      items: [],
-      section_position: Number.isInteger(item.section_position) ? item.section_position : 0
-    };
-  }
-  sectionsMap[item.section_id].items.push(item);
-});
-
-// 🔥 2. Ordenar secciones por section_position
-const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-  return a.section_position - b.section_position; // 👈 acá usamos section_position!!
-});
-
-
-
+    const sectionsMap = {};
+    menuData.forEach(item => {
+      if (!sectionsMap[item.section_id]) {
+        sectionsMap[item.section_id] = {
+          section_id: item.section_id,
+          tipo: item.tipo,
+          parent_group: item.parent_group,
+          items: [],
+          section_position: Number.isInteger(item.section_position) ? item.section_position : (item.position || 0)
+        };
+      }
+      sectionsMap[item.section_id].items.push(item);
+    });
+  
+    // 🔥 2. Ordenar correctamente las secciones usando section_position o position
+    const orderedSections = Object.values(sectionsMap).sort((a, b) => a.section_position - b.section_position);
   
     // 🔥 3. Renderizar secciones ordenadas
     orderedSections.forEach(section => {
@@ -563,7 +557,7 @@ const orderedSections = Object.values(sectionsMap).sort((a, b) => {
       `;
       parent.appendChild(menuSection);
   
-      // 🔥 4. Ordenar los items dentro de la sección
+      // 🔥 4. Ordenar los items dentro de la sección por position
       const sortedItems = items.sort((a, b) => a.position - b.position);
   
       sortedItems.forEach(item => {
