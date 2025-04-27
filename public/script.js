@@ -543,8 +543,7 @@ document.addEventListener("DOMContentLoaded", function () {
       parent.appendChild(menuSection);
   
       // 🔥 4. Ordenar los items dentro de la sección
-      const sortedItems = items.sort((a, b) => a.position - b.position);
-  
+      const sortedItems = items.sort((a, b) => a.position - b.position);  
       sortedItems.forEach(item => {
         const newItem = createMenuItem(item);
         newItem.dataset.id = item.id;
