@@ -330,12 +330,13 @@ document.addEventListener("DOMContentLoaded", function () {
         group.sortableInstance = new Sortable(group, {
           animation: 150,
           handle: '.section-title',
-          draggable: '.menu-section',
+          draggable: ':scope > .menu-section', // 🔥 solo hijos directos
           ghostClass: 'sortable-ghost',
           scroll: true,
           onStart: evt => { if (!sortableEnabled) evt.preventDefault(); },
           onEnd: evt => handleOnEnd(evt, group, 'sections')
         });
+        
   
         // 🔥 Dentro de cada sección: arrastrar items
         group.querySelectorAll('.menu-section').forEach(section => {
@@ -362,7 +363,9 @@ document.addEventListener("DOMContentLoaded", function () {
           element: item
         }));
       } else if (type === 'sections') {
-        rawItems = Array.from(container.querySelectorAll('.menu-section')).map(section => ({
+        rawItems = Array.from(container.children).filter(child => 
+          child.classList.contains('menu-section')
+        ).map(section => ({
           id: Number(section.dataset.id),
           element: section
         }));
