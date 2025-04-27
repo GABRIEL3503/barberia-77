@@ -387,6 +387,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (type === 'sections') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
         bodyData = { sections: items };
+    
+        // 🔥🔥 Mover elementos en el DOM localmente
+        const ordered = items
+          .sort((a, b) => a.position - b.position)
+          .map(i => validItems.find(v => v.id === i.id)?.element)
+          .filter(Boolean);
+    
+        ordered.forEach(el => container.appendChild(el));
       } else if (type === 'items') {
         apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
         bodyData = { items: items };
@@ -403,17 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
         body: JSON.stringify(bodyData)
       })
       .then(res => res.json())
-      .then(data => {
-        console.log(`${type} ordenados correctamente`, data);
-    
-        if (type === 'sections') {
-          // 🔥 Volver a pedir datos frescos del backend y re-renderizar
-          fetch('https://octopus-app.com.ar/la-barberia-77/api/menu')
-            .then(res => res.json())
-            .then(menuData => renderMenuItems(menuData.data))
-            .catch(err => console.error('Error al recargar menú:', err));
-        }
-      })
+      .then(data => console.log(`${type} ordenados correctamente`, data))
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
     
