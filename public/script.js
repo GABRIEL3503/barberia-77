@@ -504,26 +504,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }, {});
   
     // 🔥 1. Agrupar items por sección_id
-    const sectionsMap = {};
-    menuData.forEach(item => {
-      if (!sectionsMap[item.section_id]) {
-        sectionsMap[item.section_id] = {
-          section_id: item.section_id,
-          tipo: item.tipo,
-          parent_group: item.parent_group,
-          items: []
-        };
-      }
-      sectionsMap[item.section_id].items.push(item);
-    });
-  
-    // 🔥 2. Ordenar secciones por primer `position` de sus items
- // 🔥 2. Ordenar secciones por el "position" de la sección misma
-const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-  const aPos = a.items[0]?.section_position ?? 0;
-  const bPos = b.items[0]?.section_position ?? 0;
-  return aPos - bPos;
+// 🔥 1. Agrupar items por sección_id
+const sectionsMap = {};
+menuData.forEach(item => {
+  if (!sectionsMap[item.section_id]) {
+    sectionsMap[item.section_id] = {
+      section_id: item.section_id,
+      tipo: item.tipo,
+      parent_group: item.parent_group,
+      items: [],
+      section_position: item.section_position || 0 // <--- Agregá esto
+    };
+  }
+  sectionsMap[item.section_id].items.push(item);
 });
+
+// 🔥 2. Ordenar secciones por section_position
+const orderedSections = Object.values(sectionsMap).sort((a, b) => {
+  return a.section_position - b.section_position;
+});
+
 
   
     // 🔥 3. Renderizar secciones ordenadas
