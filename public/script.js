@@ -407,14 +407,36 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(sectionData => {
               const sections = sectionData.data;
     
-              // Reordenar y regenerar el menú usando el render oficial
-              renderMenuItems(sections);
+              // 🔥 Agrupamos las secciones en su parent_group
+              const groupElements = {};
+              document.querySelectorAll('.menu-group').forEach(group => {
+                const parentGroup = group.getAttribute('data-group');
+                groupElements[parentGroup] = group;
+              });
+    
+              // 🔥 Limpiar todas las secciones existentes de los grupos
+              Object.values(groupElements).forEach(group => {
+                group.querySelectorAll('.menu-section').forEach(section => group.removeChild(section));
+              });
+    
+              // 🔥 Insertar en el orden correcto
+              sections.forEach(sectionInfo => {
+                const group = groupElements[sectionInfo.parent_group];
+                const sectionEl = document.querySelector(`.menu-section[data-id="${sectionInfo.id}"]`);
+                if (group && sectionEl) {
+                  group.appendChild(sectionEl);
+                } else {
+                  console.warn(`Sección o grupo no encontrado para ID ${sectionInfo.id} / ${sectionInfo.parent_group}`);
+                }
+              });
             })
             .catch(err => console.error('Error actualizando orden de secciones:', err));
         }
+    
       })
       .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
+    
     
     
     
@@ -480,6 +502,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
+
   function renderMenuItems(menuData) {
     const container = document.querySelector('.container');
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
@@ -513,18 +536,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }, {});
   
     const sectionsMap = {};
+  
     menuData.forEach(item => {
-      const sectionId = item.section_id || item.id;
+      const sectionId = item.section_id || item.id;  // 🔥 Si viene desde sections API
+      const sectionTipo = item.tipo || item.nombre || ''; // 🔥 nombre para secciones
+      const parentGroup = item.parent_group || 'barberia';
+      const position = item.position || 0;
+  
       if (!sectionsMap[sectionId]) {
         sectionsMap[sectionId] = {
           section_id: sectionId,
-          tipo: item.tipo || item.nombre || 'Sección', // 🔥 aquí corregimos
-          parent_group: item.parent_group,
+          tipo: sectionTipo,
+          parent_group: parentGroup,
           items: [],
-          section_position: item.position || 0
+          section_position: position
         };
       }
-      sectionsMap[sectionId].items.push(item);
+  
+      if (item.item_name) {
+        sectionsMap[sectionId].items.push(item);
+      }
     });
   
     const orderedSections = Object.values(sectionsMap).sort((a, b) => a.section_position - b.section_position);
