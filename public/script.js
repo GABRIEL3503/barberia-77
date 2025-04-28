@@ -547,85 +547,87 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-
-const sectionsMap = {};
-menuData.forEach(item => {
-  if (!sectionsMap[item.section_id]) {
-    sectionsMap[item.section_id] = {
-      section_id: item.section_id,
-      tipo: item.tipo,
-      parent_group: item.parent_group,
-      items: [],
-      section_position: Number.isInteger(item.section_position) ? item.section_position : 0
-    };
-  }
-  sectionsMap[item.section_id].items.push(item);
-});
-
-// 🔥 2. Ordenar secciones por section_position
-const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-  return a.section_position - b.section_position; // 👈 acá usamos section_position!!
-});
-
-
-
+    // 🔥 Primero obtenemos las secciones reales
+    fetch('https://octopus-app.com.ar/la-barberia-77/api/sections')
+      .then(response => response.json())
+      .then(sectionsResponse => {
+        const sectionsData = sectionsResponse.data || [];
   
-    // 🔥 3. Renderizar secciones ordenadas
-    orderedSections.forEach(section => {
-      const { parent_group, tipo, items } = section;
-      const parent = parentContainers[parent_group || 'barberia'];
+        const sectionsMap = {};
+        menuData.forEach(item => {
+          if (!sectionsMap[item.section_id]) {
+            sectionsMap[item.section_id] = {
+              section_id: item.section_id,
+              tipo: item.tipo,
+              parent_group: item.parent_group,
+              items: []
+            };
+          }
+          sectionsMap[item.section_id].items.push(item);
+        });
   
-      const menuSection = document.createElement('div');
-      menuSection.className = 'menu-section';
-      menuSection.setAttribute('data-id', section.section_id);
-      menuSection.setAttribute('data-type', tipo);
-      menuSection.innerHTML = `
-        <h2 class="section-title">
-          <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
-        </h2>
-      `;
-      parent.appendChild(menuSection);
+        // 🔥 Ahora ordenar usando sectionsData
+        const orderedSections = Object.values(sectionsMap).sort((a, b) => {
+          const aSection = sectionsData.find(s => s.id === a.section_id);
+          const bSection = sectionsData.find(s => s.id === b.section_id);
+          return (aSection?.position || 0) - (bSection?.position || 0);
+        });
   
-      // 🔥 4. Ordenar los items dentro de la sección
-      const sortedItems = items.sort((a, b) => a.position - b.position);
+        orderedSections.forEach(section => {
+          const { parent_group, tipo, items } = section;
+          const parent = parentContainers[parent_group || 'barberia'];
   
-      sortedItems.forEach(item => {
-        const newItem = createMenuItem(item);
-        newItem.dataset.id = item.id;
-        newItem.dataset.hidden = item.hidden;
+          const menuSection = document.createElement('div');
+          menuSection.className = 'menu-section';
+          menuSection.setAttribute('data-id', section.section_id);
+          menuSection.setAttribute('data-type', tipo);
+          menuSection.innerHTML = `
+            <h2 class="section-title">
+              <span>~ ${capitalizeFirstLetter(tipo.toLowerCase())} ~</span>
+            </h2>
+          `;
+          parent.appendChild(menuSection);
   
-        const menuItem = newItem.querySelector('.menu-item');
-        const buttonsContainer = document.createElement('span');
-        buttonsContainer.className = 'admin-buttons-container';
+          const sortedItems = items.sort((a, b) => a.position - b.position);
   
-        const editButton = menuItem.querySelector('.edit-button');
-        if (editButton) buttonsContainer.appendChild(editButton);
+          sortedItems.forEach(item => {
+            const newItem = createMenuItem(item);
+            newItem.dataset.id = item.id;
+            newItem.dataset.hidden = item.hidden;
   
-        const hideShowButton = document.createElement('button');
-        hideShowButton.className = 'hide-show-button auth-required';
-        hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
-        hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
-        buttonsContainer.appendChild(hideShowButton);
+            const menuItem = newItem.querySelector('.menu-item');
+            const buttonsContainer = document.createElement('span');
+            buttonsContainer.className = 'admin-buttons-container';
   
-        menuItem.appendChild(buttonsContainer);
+            const editButton = menuItem.querySelector('.edit-button');
+            if (editButton) buttonsContainer.appendChild(editButton);
   
-        if (item.hidden) {
-          newItem.style.display = isAuthenticated ? 'block' : 'none';
-          newItem.style.opacity = isAuthenticated ? '0.3' : '1';
+            const hideShowButton = document.createElement('button');
+            hideShowButton.className = 'hide-show-button auth-required';
+            hideShowButton.textContent = item.hidden ? 'Mostrar' : 'Ocultar';
+            hideShowButton.addEventListener('click', () => toggleVisibility(newItem, hideShowButton));
+            buttonsContainer.appendChild(hideShowButton);
+  
+            menuItem.appendChild(buttonsContainer);
+  
+            if (item.hidden) {
+              newItem.style.display = isAuthenticated ? 'block' : 'none';
+              newItem.style.opacity = isAuthenticated ? '0.3' : '1';
+            }
+  
+            const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
+            menuSection.insertBefore(newItem, afterTitle || null);
+          });
+        });
+  
+        checkAuthentication();
+  
+        const staticGroup = container.querySelector('.menu-group.static-group');
+        if (staticGroup) {
+          container.appendChild(staticGroup);
         }
-  
-        const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
-        menuSection.insertBefore(newItem, afterTitle || null);
-      });
-    });
-  
-    checkAuthentication();
-  
-    // 🔥 Reubicar grupo estático al fondo
-    const staticGroup = container.querySelector('.menu-group.static-group');
-    if (staticGroup) {
-      container.appendChild(staticGroup);
-    }
+      })
+      .catch(err => console.error('Error al cargar las secciones:', err));
   }
   
   
