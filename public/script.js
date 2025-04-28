@@ -279,12 +279,10 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
   }
-
-  let sortableEnabled = false; // 🔥 Variable global controlando estado de arrastre
-
   function makeMenuSortable() {
     const containerBotones = document.querySelector('.container-botones');
     const menuGroups = document.querySelectorAll('.menu-group');
+    let sortableEnabled = false; // 🔥 Sigue dentro de la función como vos querés
   
     let switchButton = document.querySelector('.switch-button');
     if (!switchButton) {
@@ -336,7 +334,7 @@ document.addEventListener("DOMContentLoaded", function () {
           ghostClass: 'sortable-ghost',
           scroll: true,
           onStart: evt => { if (!sortableEnabled) evt.preventDefault(); },
-          onEnd: evt => handleOnEnd(evt, group, 'sections')
+          onEnd: evt => handleOnEnd(evt, group, 'sections') // 🔥 usando nuestro nuevo handleOnEnd mejorado
         });
   
         group.querySelectorAll('.menu-section').forEach(section => {
@@ -352,9 +350,111 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
     }
+  
+    function handleOnEnd(evt, container, type) {
+      if (!sortableEnabled) return;
+  
+      let rawItems = [];
+      if (type === 'items') {
+        rawItems = Array.from(container.querySelectorAll('.contenedor-items')).map(item => ({
+          id: Number(item.dataset.id),
+          element: item
+        }));
+      } else if (type === 'sections') {
+        rawItems = Array.from(container.children)
+          .filter(child => child.classList.contains('menu-section'))
+          .map(section => ({
+            id: Number(section.dataset.id),
+            element: section
+          }));
+      }
+  
+      const validItems = rawItems.filter(item => Number.isInteger(item.id));
+      const items = validItems.map((item, index) => ({
+        id: item.id,
+        position: index // 🔥 posición limpia y correcta
+      }));
+  
+      if (items.length === 0) {
+        console.warn(`[handleOnEnd] No se encontraron items válidos para ${type}.`);
+        return;
+      }
+  
+      const apiEndpoint = type === 'sections'
+        ? 'https://octopus-app.com.ar/la-barberia-77/api/sections/order'
+        : 'https://octopus-app.com.ar/la-barberia-77/api/menu/order';
+  
+      const bodyData = type === 'sections' ? { sections: items } : { items: items };
+  
+      console.log(`[handleOnEnd] Enviando a ${apiEndpoint}`, bodyData);
+  
+      fetch(apiEndpoint, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('jwt_la-barberia-77')}`
+        },
+        body: JSON.stringify(bodyData)
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log(`${type} ordenados correctamente`, data);
+  
+          Promise.all([
+            fetch('https://octopus-app.com.ar/la-barberia-77/api/menu').then(res => res.json()),
+            fetch('https://octopus-app.com.ar/la-barberia-77/api/sections').then(res => res.json())
+          ])
+            .then(([menuResponse, sectionsResponse]) => {
+              const freshMenuData = menuResponse.data;
+              const freshSections = sectionsResponse.data;
+              localStorage.setItem('menuData', JSON.stringify(freshMenuData));
+              renderMenuItems(freshMenuData);
+              updateNavbarLinks(freshSections);
+            })
+            .catch(err => console.error('Error actualizando menú o navbar:', err));
+        })
+        .catch(err => console.error(`Error al ordenar ${type}:`, err));
+    }
+  
+    function updateNavbarLinks(sections) {
+      const navbarLinks = document.getElementById('navbar-links');
+      if (!navbarLinks) return;
+      navbarLinks.innerHTML = '';
+      PARENT_GROUPS.forEach(group => {
+        const groupContainer = document.createElement('div');
+        groupContainer.className = 'nav-group';
+  
+        const parentLink = document.createElement('a');
+        parentLink.href = '#';
+        parentLink.className = 'parent-link';
+        parentLink.dataset.group = group.id;
+        parentLink.innerHTML = `${group.title} <img src="img/call_made_20dp_FILL0_wght400_GRAD0_opsz20.png" alt="">`;
+  
+        const sectionsContainer = document.createElement('div');
+        sectionsContainer.className = 'section-links';
+  
+        sections
+          .filter(section => section.parent_group === group.id)
+          .sort((a, b) => a.position - b.position)
+          .forEach(section => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.dataset.type = section.nombre;
+            link.dataset.group = group.id;
+            link.innerHTML = `${capitalizeFirstLetter(section.nombre)} <img src="img/call_made_20dp_FILL0_wght400_GRAD0_opsz20.png" alt="">`;
+            sectionsContainer.appendChild(link);
+          });
+  
+        groupContainer.appendChild(parentLink);
+        groupContainer.appendChild(sectionsContainer);
+        navbarLinks.appendChild(groupContainer);
+      });
+  
+      addNavbarLinkEvents();
+    }
   }
   
-  
+
   makeMenuSortable();
 
 
