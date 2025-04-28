@@ -536,7 +536,6 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-    // 🔥 Primero obtenemos las secciones reales
     fetch('https://octopus-app.com.ar/la-barberia-77/api/sections')
       .then(response => response.json())
       .then(sectionsResponse => {
@@ -555,7 +554,6 @@ document.addEventListener("DOMContentLoaded", function () {
           sectionsMap[item.section_id].items.push(item);
         });
   
-        // 🔥 Ahora ordenar usando sectionsData
         const orderedSections = Object.values(sectionsMap).sort((a, b) => {
           const aSection = sectionsData.find(s => s.id === a.section_id);
           const bSection = sectionsData.find(s => s.id === b.section_id);
@@ -604,8 +602,15 @@ document.addEventListener("DOMContentLoaded", function () {
               newItem.style.opacity = isAuthenticated ? '0.3' : '1';
             }
   
-            const afterTitle = menuSection.querySelector('h2.section-title')?.nextSibling;
-            menuSection.insertBefore(newItem, afterTitle || null);
+            // 🔥 Cambio aquí: insertarlo bien ordenado
+            const contenedores = menuSection.querySelectorAll('.contenedor-items');
+            const lastContenedor = contenedores[contenedores.length - 1];
+            if (lastContenedor) {
+              lastContenedor.after(newItem);
+            } else {
+              const afterTitle = menuSection.querySelector('h2.section-title');
+              menuSection.insertBefore(newItem, afterTitle.nextSibling);
+            }
           });
         });
   
@@ -615,8 +620,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (staticGroup) {
           container.appendChild(staticGroup);
         }
+  
         makeMenuSortable();
-
       })
       .catch(err => console.error('Error al cargar las secciones:', err));
   }
