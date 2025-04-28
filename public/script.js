@@ -239,6 +239,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+
+
   function loadMenuItems() {
     const localVersion = localStorage.getItem('menuVersion');
     // return fetch('http://localhost:3001/api/menuVersion')
@@ -278,10 +280,11 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
+  let sortableEnabled = false; // 🔥 Variable global controlando estado de arrastre
+
   function makeMenuSortable() {
     const containerBotones = document.querySelector('.container-botones');
     const menuGroups = document.querySelectorAll('.menu-group');
-    let sortableEnabled = false;
   
     let switchButton = document.querySelector('.switch-button');
     if (!switchButton) {
@@ -325,7 +328,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   
     function enableSortable() {
-      // 🔥 Dentro de cada grupo: arrastrar secciones
       menuGroups.forEach(group => {
         group.sortableInstance = new Sortable(group, {
           animation: 150,
@@ -337,7 +339,6 @@ document.addEventListener("DOMContentLoaded", function () {
           onEnd: evt => handleOnEnd(evt, group, 'sections')
         });
   
-        // 🔥 Dentro de cada sección: arrastrar items
         group.querySelectorAll('.menu-section').forEach(section => {
           section.sortableInstance = new Sortable(section, {
             animation: 150,
@@ -351,86 +352,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
     }
-  
-    function handleOnEnd(evt, container, type) {
-      if (!sortableEnabled) return;
-    
-      let rawItems = [];
-      if (type === 'items') {
-        rawItems = Array.from(container.querySelectorAll('.contenedor-items')).map(item => ({
-          id: Number(item.dataset.id),
-          element: item
-        }));
-      } else if (type === 'sections') {
-        rawItems = Array.from(container.children)
-          .filter(child => child.classList.contains('menu-section'))
-          .map(section => ({
-            id: Number(section.dataset.id),
-            element: section
-          }));
-      }
-    
-      const validItems = rawItems.filter(item => Number.isInteger(item.id));
-      const items = validItems.map((item, index) => ({
-        id: item.id,
-        position: (type === 'items' ? validItems.length - 1 - index : index)
-      }));
-    
-      if (items.length === 0) {
-        console.warn(`[handleOnEnd] No se encontraron items válidos para ${type}.`);
-        return;
-      }
-    
-      let apiEndpoint = '';
-      let bodyData = {};
-    
-      if (type === 'sections') {
-        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/sections/order`;
-        bodyData = { sections: items };
-    
-        const ordered = items
-          .sort((a, b) => a.position - b.position)
-          .map(i => validItems.find(v => v.id === i.id)?.element)
-          .filter(Boolean);
-    
-        ordered.forEach(el => container.appendChild(el));
-      } else if (type === 'items') {
-        apiEndpoint = `https://octopus-app.com.ar/la-barberia-77/api/menu/order`;
-        bodyData = { items: items };
-      }
-    
-      console.log(`[handleOnEnd] Enviando a ${apiEndpoint}`, bodyData);
-    
-      fetch(apiEndpoint, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('jwt_la-barberia-77')}`
-        },
-        body: JSON.stringify(bodyData)
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log(`${type} ordenados correctamente`, data);
-    
-        if (type === 'sections') {
-          fetch('https://octopus-app.com.ar/la-barberia-77/api/menu')
-            .then(res => res.json())
-            .then(menuResponse => {
-              const freshMenuData = menuResponse.data;
-              localStorage.setItem('menuData', JSON.stringify(freshMenuData));
-              renderMenuItems(freshMenuData);
-            })
-            .catch(err => console.error('Error actualizando menú después de mover sección:', err));
-        }
-      })
-      .catch(err => console.error(`Error al ordenar ${type}:`, err));
-    }
-    
-    
-    
-    
   }
+  
   
   makeMenuSortable();
 
@@ -1289,6 +1212,7 @@ const orderedSections = Object.values(sectionsMap).sort((a, b) => {
   }
   // ✅ Inicializar stockArray en el ámbito global para asegurar su disponibilidad
   let stockArray = [];
+
   function updateMenuItemDOM(data) {
     const el = document.querySelector(`.menu-item[data-id="${data.id}"]`);
     if (!el) return;
@@ -2137,16 +2061,17 @@ function loadMenuSections() {
         const sectionsContainer = document.createElement('div');
         sectionsContainer.className = 'section-links';
 
-        sections.forEach(section => {
-          if (section.parent_group === group.id) {
+        sections
+          .filter(section => section.parent_group === group.id)
+          .sort((a, b) => a.position - b.position) // 🔥 Ordenamos las secciones
+          .forEach(section => {
             const link = document.createElement('a');
             link.href = '#';
             link.dataset.type = section.nombre;
             link.dataset.group = group.id;
             link.innerHTML = `${capitalizeFirstLetter(section.nombre)} <img src="img/call_made_20dp_FILL0_wght400_GRAD0_opsz20.png" alt="">`;
             sectionsContainer.appendChild(link);
-          }
-        });
+          });
 
         groupContainer.appendChild(parentLink);
         groupContainer.appendChild(sectionsContainer);
