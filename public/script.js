@@ -399,20 +399,9 @@ document.addEventListener("DOMContentLoaded", function () {
         .then(res => res.json())
         .then(data => {
           console.log(`${type} ordenados correctamente`, data);
-  
-          Promise.all([
-            fetch('https://octopus-app.com.ar/la-barberia-77/api/menu').then(res => res.json()),
-            fetch('https://octopus-app.com.ar/la-barberia-77/api/sections').then(res => res.json())
-          ])
-            .then(([menuResponse, sectionsResponse]) => {
-              const freshMenuData = menuResponse.data;
-              const freshSections = sectionsResponse.data;
-              localStorage.setItem('menuData', JSON.stringify(freshMenuData));
-              renderMenuItems(freshMenuData);
-              updateNavbarLinks(freshSections);
-            })
-            .catch(err => console.error('Error actualizando menú o navbar:', err));
+          // ✅ No recargamos el menú, el DOM ya refleja la nueva posición.
         })
+        
         .catch(err => console.error(`Error al ordenar ${type}:`, err));
     }
   
