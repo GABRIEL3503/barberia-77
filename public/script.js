@@ -2043,9 +2043,18 @@ function loadMenuSections() {
   fetch('https://octopus-app.com.ar/la-barberia-77/api/sections')
     .then(response => response.json())
     .then(data => {
-      const sections = data.data;
+      const sections = data.data || [];
       const navbarLinks = document.getElementById('navbar-links');
       navbarLinks.innerHTML = '';
+
+      // 🔥 Primero agrupamos por parent_group
+      const groupedSections = sections.reduce((groups, section) => {
+        if (!groups[section.parent_group]) {
+          groups[section.parent_group] = [];
+        }
+        groups[section.parent_group].push(section);
+        return groups;
+      }, {});
 
       // 🔁 Generar enlaces dinámicos por grupo
       PARENT_GROUPS.forEach(group => {
@@ -2061,9 +2070,9 @@ function loadMenuSections() {
         const sectionsContainer = document.createElement('div');
         sectionsContainer.className = 'section-links';
 
-        sections
-          .filter(section => section.parent_group === group.id)
-          .sort((a, b) => a.position - b.position) // 🔥 Ordenamos las secciones
+        const sectionsInGroup = groupedSections[group.id] || [];
+        sectionsInGroup
+          .sort((a, b) => a.position - b.position) // 🔥 Orden dentro del grupo
           .forEach(section => {
             const link = document.createElement('a');
             link.href = '#';
@@ -2083,20 +2092,20 @@ function loadMenuSections() {
       reseñasGroup.className = 'nav-group';
 
       const reseñasLink = document.createElement('a');
-      reseñasLink.href = '#reseñas'; // ID de sección
+      reseñasLink.href = '#reseñas';
       reseñasLink.className = 'parent-link';
       reseñasLink.innerHTML = `RESEÑAS <img src="img/call_made_20dp_FILL0_wght400_GRAD0_opsz20.png" alt="">`;
 
       reseñasGroup.appendChild(reseñasLink);
       navbarLinks.appendChild(reseñasGroup);
 
-      // 🔁 Reaplicar eventos
       addNavbarLinkEvents();
     })
     .catch(err => {
       console.error('Error al cargar secciones del menú:', err);
     });
 }
+
 
 
 
