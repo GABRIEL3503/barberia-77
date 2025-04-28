@@ -515,7 +515,7 @@ document.addEventListener("DOMContentLoaded", function () {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
-  function renderMenuItems(menuData, sectionsData) {
+  function renderMenuItems(menuData) {
     const container = document.querySelector('.container');
     container.querySelectorAll('.menu-section').forEach(section => section.remove());
     container.querySelectorAll('.menu-group:not(.static-group)').forEach(group => group.remove());
@@ -547,26 +547,30 @@ document.addEventListener("DOMContentLoaded", function () {
       return containers;
     }, {});
   
-    const sectionsMap = {};
-    menuData.forEach(item => {
-      if (!sectionsMap[item.section_id]) {
-        sectionsMap[item.section_id] = {
-          section_id: item.section_id,
-          tipo: item.tipo,
-          parent_group: item.parent_group,
-          items: []
-        };
-      }
-      sectionsMap[item.section_id].items.push(item);
-    });
+
+const sectionsMap = {};
+menuData.forEach(item => {
+  if (!sectionsMap[item.section_id]) {
+    sectionsMap[item.section_id] = {
+      section_id: item.section_id,
+      tipo: item.tipo,
+      parent_group: item.parent_group,
+      items: [],
+      section_position: Number.isInteger(item.section_position) ? item.section_position : 0
+    };
+  }
+  sectionsMap[item.section_id].items.push(item);
+});
+
+// 🔥 2. Ordenar secciones por section_position
+const orderedSections = Object.values(sectionsMap).sort((a, b) => {
+  return a.section_position - b.section_position; // 👈 acá usamos section_position!!
+});
+
+
+
   
-    // 🔥 Ordenar usando sectionsData
-    const orderedSections = Object.values(sectionsMap).sort((a, b) => {
-      const aSection = sectionsData.find(s => s.id === a.section_id);
-      const bSection = sectionsData.find(s => s.id === b.section_id);
-      return (aSection?.position || 0) - (bSection?.position || 0);
-    });
-  
+    // 🔥 3. Renderizar secciones ordenadas
     orderedSections.forEach(section => {
       const { parent_group, tipo, items } = section;
       const parent = parentContainers[parent_group || 'barberia'];
@@ -582,6 +586,7 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
       parent.appendChild(menuSection);
   
+      // 🔥 4. Ordenar los items dentro de la sección
       const sortedItems = items.sort((a, b) => a.position - b.position);
   
       sortedItems.forEach(item => {
@@ -616,12 +621,12 @@ document.addEventListener("DOMContentLoaded", function () {
   
     checkAuthentication();
   
+    // 🔥 Reubicar grupo estático al fondo
     const staticGroup = container.querySelector('.menu-group.static-group');
     if (staticGroup) {
       container.appendChild(staticGroup);
     }
   }
-  
   
   
   
