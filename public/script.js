@@ -626,6 +626,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (staticGroup) {
           container.appendChild(staticGroup);
         }
+        makeMenuSortable();
+
       })
       .catch(err => console.error('Error al cargar las secciones:', err));
   }
