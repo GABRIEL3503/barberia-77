@@ -251,8 +251,10 @@ baseRouter.get('/api/menu', (req, res) => {
   LEFT JOIN menu_sections ms 
     ON mi.tipo = ms.nombre 
     AND mi.parent_group = ms.parent_group
-  ORDER BY ms.position, mi.position
-`;
+  ORDER BY ms.position ASC, mi.position ASC, mi.id ASC
+  `;
+  
+  
   db.all(query, [], (err, rows) => {
       if (err) {
           res.status(500).json({ error: err.message });
