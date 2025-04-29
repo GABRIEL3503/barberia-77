@@ -2451,8 +2451,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 async function mostrarVisitas() {
   try {
-    await fetch('https://octopus-app.com.ar/la-barberia-77/api/visitas', { method: 'POST' });
-    const res = await fetch('https://octopus-app.com.ar/la-barberia-77/api/visitas');
+    await fetch('https://octopus-app.com.ar/la-barberia-77/visitas', { method: 'POST' });
+    const res = await fetch('https://octopus-app.com.ar/la-barberia-77/visitas');
     const data = await res.json();
 
     const hoy = new Date();
