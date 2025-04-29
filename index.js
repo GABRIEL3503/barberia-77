@@ -845,8 +845,9 @@ function getClientIp(req) {
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
 
-  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-  ip = ip.split(',')[0].trim();
+  let ip = req.ip;
+  ip = ip.replace('::ffff:', '');
+    ip = ip.split(',')[0].trim();
   ip = ip.replace('::ffff:', '');
 
   console.log('📥 IP recibida:', ip); // LOG IP recibida
