@@ -844,10 +844,9 @@ function getClientIp(req) {
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
 
-  let ip = req.ip.replace('::ffff:', '').trim();
+  const rawIp = req.ip.replace('::ffff:', '').trim();
   const userAgent = req.headers['user-agent'] || 'unknown';
-  ip = `${ip}_${userAgent}`; // <- ahora `ip` es el identificador completo
-  
+  const identificador = `${rawIp}_${userAgent}`; // ✅ combinación única real
 
   console.log('📥 IP + UserAgent recibidos:', identificador);
 
@@ -884,6 +883,7 @@ baseRouter.post('/visitas', (req, res) => {
     }
   );
 });
+
 
 
 // GET /visitas
