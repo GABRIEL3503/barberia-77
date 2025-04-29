@@ -1178,6 +1178,22 @@ baseRouter.get('/api/menuVersion', (req, res) => {
 // app.get('/api/menuVersion', (req, res) => {
 //   res.json({ version: menuVersion });
 // });
+
+// GET /visitas/listar
+baseRouter.get('/visitas/listar', (req, res) => {
+  const db = ensureDatabaseConnection();
+
+  db.all(`SELECT * FROM visitas ORDER BY fecha DESC, hora DESC`, (err, rows) => {
+    if (err) {
+      console.error('❌ Error al listar visitas:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+
+    console.log(`📄 Total visitas registradas: ${rows.length}`);
+    res.json({ total: rows.length, visitas: rows });
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
