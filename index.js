@@ -839,15 +839,17 @@ function getClientIp(req) {
   return ip;
 }
 
-
+// baseRouter.js
 
 // POST /visitas
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
 
   let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
-  ip = ip.split(',')[0].trim(); // tomar solo la primera IP
-  ip = ip.replace('::ffff:', ''); // normalizar IPv4 en IPv6
+  ip = ip.split(',')[0].trim();
+  ip = ip.replace('::ffff:', '');
+
+  console.log('📥 IP recibida:', ip); // LOG IP recibida
 
   const now = new Date();
   const fecha = now.toISOString().split('T')[0]; // YYYY-MM-DD
@@ -858,6 +860,7 @@ baseRouter.post('/visitas', (req, res) => {
     [ip, fecha],
     (err, row) => {
       if (err) {
+        console.error('❌ Error buscando visita:', err.message);
         return res.status(500).json({ error: err.message });
       }
 
@@ -867,12 +870,15 @@ baseRouter.post('/visitas', (req, res) => {
           [ip, fecha, hora],
           (err2) => {
             if (err2) {
+              console.error('❌ Error insertando visita:', err2.message);
               return res.status(500).json({ error: err2.message });
             }
+            console.log('✅ Nueva visita guardada:', { ip, fecha, hora }); // LOG inserción
             res.json({ ok: true });
           }
         );
       } else {
+        console.log('⚠️ Visita ya registrada hoy para IP:', ip); // LOG ya existía
         res.json({ ok: true });
       }
     }
@@ -897,10 +903,18 @@ baseRouter.get('/visitas', (req, res) => {
   };
 
   contar(current, (err1, actual) => {
-    if (err1) return res.status(500).json({ error: err1.message });
+    if (err1) {
+      console.error('❌ Error contando mes actual:', err1.message);
+      return res.status(500).json({ error: err1.message });
+    }
 
     contar(prev, (err2, anterior) => {
-      if (err2) return res.status(500).json({ error: err2.message });
+      if (err2) {
+        console.error('❌ Error contando mes anterior:', err2.message);
+        return res.status(500).json({ error: err2.message });
+      }
+
+      console.log('📊 Visitas actuales:', actual, 'Visitas mes pasado:', anterior); // LOG conteo
 
       res.json({
         mes_actual: actual,
@@ -909,6 +923,8 @@ baseRouter.get('/visitas', (req, res) => {
     });
   });
 });
+
+
 baseRouter.put('/api/menu/:id', upload.single('imagen'), async (req, res) => {
   const db = ensureDatabaseConnection();
   const { id } = req.params;
