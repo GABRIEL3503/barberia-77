@@ -2451,8 +2451,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 async function mostrarVisitas() {
   try {
-    await fetch('/visitas', { method: 'POST' }); // corregido: misma ruta
-    const res = await fetch('/visitas');
+    await fetch('/la-barberia-77/visitas', { method: 'POST' }); // corregido: misma ruta
+    const res = await fetch('/la-barberia-77/visitas');
     const data = await res.json();
 
     const hoy = new Date();
