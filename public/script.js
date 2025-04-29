@@ -2451,8 +2451,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 async function mostrarVisitas() {
   try {
-    await fetch('/la-barberia-77/visitas', { method: 'POST' }); // corregido: misma ruta
-    const res = await fetch('/la-barberia-77/visitas');
+    await fetch('https://octopus-app.com.ar/la-barberia-77/api/visitas', { method: 'POST' });
+    const res = await fetch('https://octopus-app.com.ar/la-barberia-77/api/visitas');
     const data = await res.json();
 
     const hoy = new Date();
@@ -2467,12 +2467,14 @@ async function mostrarVisitas() {
 
     document.getElementById('fecha-actual').textContent = `${diaNombre} ${dia}/${mes + 1}/${año}`;
     document.getElementById('mes-actual').textContent = data.mes_actual;
-    document.getElementById('mes-anterior').textContent = `En ${meses[mes - 1]} recibiste ${data.mes_anterior} visitas.`;
+    document.getElementById('mes-anterior').textContent = `En ${meses[(mes - 1 + 12) % 12]} recibiste ${data.mes_anterior} visitas.`;
 
   } catch (err) {
     console.error('Error al obtener visitas:', err);
   }
 }
+
+
 
 
 
