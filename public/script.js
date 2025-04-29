@@ -2449,11 +2449,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === popup) popup.style.display = 'none';
   });
 });
-
 async function mostrarVisitas() {
   try {
-    await fetch('/la-barberia-77/visitas', { method: 'POST' });
-    const res = await fetch('/la-barberia-77/visitas');
+    await fetch('/visitas', { method: 'POST' }); // corregido: misma ruta
+    const res = await fetch('/visitas');
     const data = await res.json();
 
     const hoy = new Date();

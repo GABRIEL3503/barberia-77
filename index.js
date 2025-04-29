@@ -839,38 +839,49 @@ function getClientIp(req) {
   return ip;
 }
 
+
+
+// POST /visitas
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
-  const ip = req.ip;
-  const userAgent = req.headers['user-agent'] || 'unknown';
-  const identificador = `${ip}-${userAgent}`;
+
+  let ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+  ip = ip.split(',')[0].trim(); // tomar solo la primera IP
+  ip = ip.replace('::ffff:', ''); // normalizar IPv4 en IPv6
+
   const now = new Date();
   const fecha = now.toISOString().split('T')[0]; // YYYY-MM-DD
   const hora = now.toTimeString().split(' ')[0]; // HH:MM:SS
 
   db.get(
     `SELECT 1 FROM visitas WHERE ip = ? AND fecha = ?`,
-    [identificador, fecha],
+    [ip, fecha],
     (err, row) => {
-      if (err) return res.status(500).json({ error: err.message });
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
 
       if (!row) {
         db.run(
           `INSERT INTO visitas (ip, fecha, hora) VALUES (?, ?, ?)`,
-          [identificador, fecha, hora]
+          [ip, fecha, hora],
+          (err2) => {
+            if (err2) {
+              return res.status(500).json({ error: err2.message });
+            }
+            res.json({ ok: true });
+          }
         );
+      } else {
+        res.json({ ok: true });
       }
-
-      res.json({ ok: true });
     }
   );
 });
 
-
-
 // GET /visitas
 baseRouter.get('/visitas', (req, res) => {
-  const db = ensureDatabaseConnection(); // <== ✅ CORRECTO
+  const db = ensureDatabaseConnection();
 
   const current = getMonthRange(0);
   const prev = getMonthRange(-1);
@@ -884,8 +895,6 @@ baseRouter.get('/visitas', (req, res) => {
       (err, row) => cb(err, row?.total || 0)
     );
   };
-  
-  
 
   contar(current, (err1, actual) => {
     if (err1) return res.status(500).json({ error: err1.message });
