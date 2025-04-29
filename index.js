@@ -841,14 +841,13 @@ function getClientIp(req) {
 
 // baseRouter.js
 
-// POST /visitas
-// POST /visitas
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
 
   let ip = req.ip.replace('::ffff:', '').trim();
   const userAgent = req.headers['user-agent'] || 'unknown';
-  const identificador = `${ip}_${userAgent}`;
+  ip = `${ip}_${userAgent}`; // <- ahora `ip` es el identificador completo
+  
 
   console.log('📥 IP + UserAgent recibidos:', identificador);
 
