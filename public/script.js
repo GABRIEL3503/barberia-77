@@ -2453,7 +2453,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function mostrarVisitas() {
   try {
     await fetch('/la-barberia-77/visitas', { method: 'POST' });
-    const res = await fetch('/casa-vera/visitas');
+    const res = await fetch('/la-barberia-77');
     const data = await res.json();
 
     const hoy = new Date();
