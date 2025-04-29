@@ -2476,9 +2476,13 @@ async function mostrarVisitas() {
 
 
 
-
-
-
 document.getElementById('wpp-btn').addEventListener('click', () => {
   window.open('https://api.whatsapp.com/send?phone=2995173758&text=Hola!%20Quisiera%20reservar%20un%20turno', '_blank');
+});
+window.addEventListener('load', async () => {
+  try {
+    await fetch('https://octopus-app.com.ar/la-barberia-77/visitas', { method: 'POST' });
+  } catch (err) {
+    console.error('Error registrando visita:', err);
+  }
 });
