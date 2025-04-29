@@ -842,23 +842,23 @@ function getClientIp(req) {
 // baseRouter.js
 
 // POST /visitas
+// POST /visitas
 baseRouter.post('/visitas', (req, res) => {
   const db = ensureDatabaseConnection();
 
-  let ip = req.ip;
-  ip = ip.replace('::ffff:', '');
-    ip = ip.split(',')[0].trim();
-  ip = ip.replace('::ffff:', '');
+  let ip = req.ip.replace('::ffff:', '').trim();
+  const userAgent = req.headers['user-agent'] || 'unknown';
+  const identificador = `${ip}_${userAgent}`;
 
-  console.log('📥 IP recibida:', ip); // LOG IP recibida
+  console.log('📥 IP + UserAgent recibidos:', identificador);
 
   const now = new Date();
-  const fecha = now.toISOString().split('T')[0]; // YYYY-MM-DD
-  const hora = now.toTimeString().split(' ')[0]; // HH:MM:SS
+  const fecha = now.toISOString().split('T')[0];
+  const hora = now.toTimeString().split(' ')[0];
 
   db.get(
     `SELECT 1 FROM visitas WHERE ip = ? AND fecha = ?`,
-    [ip, fecha],
+    [identificador, fecha],
     (err, row) => {
       if (err) {
         console.error('❌ Error buscando visita:', err.message);
@@ -868,23 +868,24 @@ baseRouter.post('/visitas', (req, res) => {
       if (!row) {
         db.run(
           `INSERT INTO visitas (ip, fecha, hora) VALUES (?, ?, ?)`,
-          [ip, fecha, hora],
+          [identificador, fecha, hora],
           (err2) => {
             if (err2) {
               console.error('❌ Error insertando visita:', err2.message);
               return res.status(500).json({ error: err2.message });
             }
-            console.log('✅ Nueva visita guardada:', { ip, fecha, hora }); // LOG inserción
+            console.log('✅ Nueva visita guardada:', { identificador, fecha, hora });
             res.json({ ok: true });
           }
         );
       } else {
-        console.log('⚠️ Visita ya registrada hoy para IP:', ip); // LOG ya existía
+        console.log('⚠️ Visita ya registrada hoy para:', identificador);
         res.json({ ok: true });
       }
     }
   );
 });
+
 
 // GET /visitas
 baseRouter.get('/visitas', (req, res) => {
@@ -1179,20 +1180,6 @@ baseRouter.get('/api/menuVersion', (req, res) => {
 //   res.json({ version: menuVersion });
 // });
 
-// GET /visitas/listar
-baseRouter.get('/visitas/listar', (req, res) => {
-  const db = ensureDatabaseConnection();
-
-  db.all(`SELECT * FROM visitas ORDER BY fecha DESC, hora DESC`, (err, rows) => {
-    if (err) {
-      console.error('❌ Error al listar visitas:', err.message);
-      return res.status(500).json({ error: err.message });
-    }
-
-    console.log(`📄 Total visitas registradas: ${rows.length}`);
-    res.json({ total: rows.length, visitas: rows });
-  });
-});
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
