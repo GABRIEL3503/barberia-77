@@ -2329,36 +2329,18 @@ fetch('https://octopus-app.com.ar/la-barberia-77/api/announcements')
   .then(data => {
     if (data.success && data.announcement && data.announcement.state) {
       announcementData = data.announcement;
-      const announcementImage = new Image();
-      announcementImage.src = data.announcement.image_url; // Precarga
+announcementImage.src = data.announcement.image_url;
+announcementImage.onload = () => {
+  showAnnouncementPopup(data.announcement);
+};
+
     }
   })
   .catch(error => console.error("Error precargando el anuncio:", error));
 
 
 
-document.addEventListener("DOMContentLoaded", function () {
-  checkAuthentication();
 
-  setTimeout(() => {
-    document.getElementById('loader').classList.add('hide-loader');
-
-    setTimeout(() => {
-      document.getElementById('loader').style.display = 'none'; // Oculta completamente el loader
-    }, 1000);
-
-    // Mostrar el contenido de la app de forma gradual
-    document.querySelector('.container').style.opacity = '1';
-    document.querySelector('footer').style.opacity = '1';
-
-    // Si el anuncio ya está precargado, mostrarlo inmediatamente
-    setTimeout(() => {
-      if (announcementData) {
-        showAnnouncementPopup(announcementData);
-      }
-    }, 400);
-  }, 2800);
-});
 function scrollToGroupTitle() {
   const target = document.querySelector(".group-title");
   if (target) {
@@ -2485,4 +2467,26 @@ window.addEventListener('load', async () => {
   } catch (err) {
     console.error('Error registrando visita:', err);
   }
+});
+document.addEventListener("DOMContentLoaded", function () {
+  checkAuthentication();
+
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('hide-loader');
+
+    setTimeout(() => {
+      document.getElementById('loader').style.display = 'none'; // Oculta completamente el loader
+    }, 1000);
+
+    // Mostrar el contenido de la app de forma gradual
+    document.querySelector('.container').style.opacity = '1';
+    document.querySelector('footer').style.opacity = '1';
+
+    // Si el anuncio ya está precargado, mostrarlo inmediatamente
+    setTimeout(() => {
+      if (announcementData) {
+        showAnnouncementPopup(announcementData);
+      }
+    }, 400);
+  }, 2800);
 });
